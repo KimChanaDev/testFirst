@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"esModuleInterop": true,
+		"target": "esnext",
+		"noImplicitAny": true,
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"outDir": "dist",
+		"strict": true,
+		"experimentalDecorators": true,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"typeRoots": ["@types", "node_modules/@types"]
+	},
+	"include": ["src/**/*"]
+}
