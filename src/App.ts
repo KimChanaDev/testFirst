@@ -3,10 +3,11 @@ import { connect } from 'mongoose';
 import cors from 'cors';
 import { Server } from 'socket.io';
 import { ExpressRouter } from './Controller/ExpressRouter.js';
+import { FriendCardGameHandler } from './Handler/FriendCardGameHandler.js';
 
 export class App 
 {
-    app: express.Application;
+    private app: express.Application;
     constructor(controllers: ExpressRouter[])
     {
         this.app = express();
@@ -37,7 +38,7 @@ export class App
 			this.app.use(controller.path, controller.router);
 		});
 	}
-    listen(): void 
+    public listen(): void 
     {
         const listener = this.app.listen(process.env.PORT, () => {
 			console.log(`Game server running! with PORT:${process.env.PORT}`);
@@ -47,7 +48,6 @@ export class App
 				origin: [process.env.CLIENT_URL as string],
 			},
 		});
-        // TODO handler socket
-        //new FriendGameHandler(io);
+        new FriendCardGameHandler(io);
     }
 }
