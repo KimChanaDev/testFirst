@@ -2,7 +2,7 @@ import { ExpressRouter } from "./ExpressRouter.js";
 
 export class GameController extends ExpressRouter
 {
-    path: string = "/games";
+    public path: string = "/games";
     constructor() {
         super();
         this.initializeRoutes();

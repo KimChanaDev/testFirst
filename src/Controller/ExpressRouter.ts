@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
 export abstract class ExpressRouter {
-	router = Router();
-	abstract path: string;
+	public router = Router();
+	public abstract path: string;
 }

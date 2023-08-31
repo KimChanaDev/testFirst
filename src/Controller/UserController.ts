@@ -2,7 +2,7 @@ import { ExpressRouter } from "./ExpressRouter.js";
 
 export class UserController extends ExpressRouter
 {
-    path: string = '/users';
+    public path: string = '/users';
     constructor() {
         super();
         this.initializeRoutes();
