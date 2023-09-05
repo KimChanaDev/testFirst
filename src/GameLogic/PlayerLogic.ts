@@ -1,4 +1,4 @@
-export abstract class Player {
+export abstract class PlayerLogic {
 	isReady = false;
 	isDisconnected = false;
 	constructor(

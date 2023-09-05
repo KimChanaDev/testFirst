@@ -7,7 +7,7 @@ export class FriendCardGameHandler extends SocketHandler
     constructor(io: Server) {
 		super(io, GAME_TYPE.FRIENDCARDGAME);
 	}
-    protected onConnection(): void
+    protected OnConnection(): void
     {
         
     }

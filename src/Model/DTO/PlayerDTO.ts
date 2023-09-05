@@ -1,4 +1,4 @@
-import { Player } from "../../GameFlow/Player.js";
+import { PlayerLogic } from "../../GameLogic/PlayerLogic.js";
 
 export class PlayerDTO {
 	constructor(
@@ -8,7 +8,7 @@ export class PlayerDTO {
 		private isOwner: boolean
 	) {}
 
-	public static CreateFromPlayer(player: Player): PlayerDTO {
+	public static CreateFromPlayer(player: PlayerLogic): PlayerDTO {
 		return new PlayerDTO(player.id, player.username, player.isReady, player.isOwner);
 	}
 }
