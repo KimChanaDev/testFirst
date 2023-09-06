@@ -70,7 +70,7 @@ export abstract class SocketHandler
 					player.ToggleIsReady();
 					this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, gameId, PlayerDTO.CreateFromPlayer(player));
 				});
-				socket.on(BUILD_IN_SOCKET_GAME_EVENTS.DISCONNECT, (disconnectReason) => {
+				socket.on(BUILD_IN_SOCKET_GAME_EVENTS.DISCONNECT, (disconnectReason: string) => {
 					SocketHandler.connectedUsers.delete(userId);
 					game.DisconnectPlayer(player);
 					if (game.gameState === GAME_STATE.FINISHED) {
@@ -81,8 +81,8 @@ export abstract class SocketHandler
 					);
 					console.log(`Socket ${socket.id} disconnected - ${disconnectReason}`);
 				});
-				socket.on(BUILD_IN_SOCKET_GAME_EVENTS.ERROR, (error) => {
-					console.log(`Socket Error - ${error}`);
+				socket.on(BUILD_IN_SOCKET_GAME_EVENTS.ERROR, (error: Error) => {
+					console.log(`Socket Error - ${error.toString()}`);
 					socket.disconnect();
 				});
 				gameAndPlayerResult = {game, player};
