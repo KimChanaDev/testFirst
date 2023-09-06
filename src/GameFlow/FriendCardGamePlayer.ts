@@ -4,9 +4,9 @@ import { PlayerLogic } from "../GameLogic/PlayerLogic.js";
 
 export class FriendCardGamePlayer extends PlayerLogic
 {
-	public deckLogic = new DeckLogic();
-	public numCardsToTake = 0;
-	public numTurnsToWait = 0;
+	public deckLogic: DeckLogic = new DeckLogic();
+	public numCardsToTake: number = 0;
+	public numTurnsToWait: number = 0;
 	public requestedCardToPlay: CardId | null = null;
 
 	constructor(id: string, username: string, socketId: string, isOwner: boolean)

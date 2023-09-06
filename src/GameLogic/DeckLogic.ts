@@ -46,20 +46,20 @@ export class DeckLogic
     {
 		if (Array.isArray(toAdd))
         {
-			if (toAdd.every((card) => this.isCardValidForDeck(card)))
+			if (toAdd.every((card) => this.IsCardValidForDeck(card)))
                 this.inDeck.push(...toAdd);
 			else 
                 throw new Error('Card not valid for deck');
 		}
         else
         {
-			if (this.isCardValidForDeck(toAdd))
+			if (this.IsCardValidForDeck(toAdd))
                 this.inDeck.push(toAdd);
 			else
                 throw new Error('Card not valid for deck');
 		}
 	}
-    private isCardValidForDeck(cardId: CardId): boolean
+    private IsCardValidForDeck(cardId: CardId): boolean
     {
 		return this.validShapes.includes(cardId[0] as ShapeType) && this.validColors.includes(cardId[1] as ColorType);
 	}

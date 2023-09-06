@@ -69,7 +69,8 @@ export abstract class GameLogic
         else player.isDisconnected = true;
         if (this.numConnectedPlayersInGame <= 0) this.StartRemoveFromGameStoreTimeout();
     }
-    protected StartRemoveFromGameStoreTimeout(): void {
+    protected StartRemoveFromGameStoreTimeout(): void
+    {
         this.removeFromGameStoreTimeout = setTimeout(() => {
             GamesStoreLogic.getInstance.DeleteGame(this.id);
         }, 3 * 60000);
