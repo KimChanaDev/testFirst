@@ -8,7 +8,10 @@ import { GamesStoreLogic } from '../GameLogic/GameStoreLogic.js';
 import { GAME_STATE } from '../Enum/GameState.js';
 import { PlayerFactory } from '../GameFlow/PlayerFactory.js';
 import { PlayerDTO } from '../Model/DTO/PlayerDTO.js';
-import { SOCKET_GAME_EVENTS } from '../Enum/SocketEvents.js';
+import { BUILD_IN_SOCKET_GAME_EVENTS, SOCKET_EVENT, SOCKET_GAME_EVENTS } from '../Enum/SocketEvents.js';
+import { Types } from 'mongoose';
+import { GameFinishedDTO } from '../Model/DTO/GameFinishedDTO.js';
+import { log } from 'console';
 
 export type SocketNextFunction = (err?: ExtendedError | undefined) => void;
 export abstract class SocketHandler
@@ -30,9 +33,69 @@ export abstract class SocketHandler
 		this.namespace = SocketHandler.io.of(namespace);
 		this.RegisterListeners();
 	}
-    private RegisterListeners(): void {
-		// TODO on socket for recieve connection
+    private RegisterListeners(): void
+	{
+		type GameAndPlayerType = {game: GameLogic, player: PlayerLogic};
+		this.namespace.on(BUILD_IN_SOCKET_GAME_EVENTS.CONNECTION, (socket: Socket) => {
+			const gameAndPlayer: GameAndPlayerType | undefined = this.RegisterBaseListeners(socket);
+			if (!gameAndPlayer) return;
+			this.OnConnection(socket, gameAndPlayer.game, gameAndPlayer.player);
+		});
 	}
+
+	private RegisterBaseListeners(socket: Socket): { game: GameLogic; player: PlayerLogic } | undefined
+	{
+		let gameAndPlayerResult: { game: GameLogic; player: PlayerLogic } | undefined;
+		if (!socket?.handshake?.query?.gameId || !socket.middlewareData.jwt?.sub)
+		{
+			console.log("Error connection detail not collect!");
+			socket.disconnect();
+			gameAndPlayerResult = undefined;
+		}
+		else
+		{
+			console.log(`Socket ${socket.id} connected`);
+			const gameId: string = socket.handshake.query.gameId as string;
+			const userId: string = socket.middlewareData.jwt?.sub as string;
+
+			const game: GameLogic | undefined = GamesStoreLogic.getInstance.GetGame(gameId) as GameLogic;
+			const player: PlayerLogic | undefined = game?.GetPlayer(userId) as PlayerLogic;
+			if (!game || !player)
+			{
+				gameAndPlayerResult = undefined;
+			}
+			else
+			{
+				socket.on(SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, () => {
+					player.ToggleIsReady();
+					this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, gameId, PlayerDTO.CreateFromPlayer(player));
+				});
+				socket.on(BUILD_IN_SOCKET_GAME_EVENTS.DISCONNECT, (disconnectReason) => {
+					SocketHandler.connectedUsers.delete(userId);
+					game.DisconnectPlayer(player);
+					if (game.gameState === GAME_STATE.FINISHED) {
+						const gameFinishedDTO: GameFinishedDTO = { winnerUsername: (game.winner as PlayerLogic).username };
+						this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.GAME_FINISHED, gameId, gameFinishedDTO);
+					} else
+						this.EmitToRoomAndSender( socket, SOCKET_GAME_EVENTS.PLAYER_DISCONNECTED, gameId, PlayerDTO.CreateFromPlayer(player)
+					);
+					console.log(`Socket ${socket.id} disconnected - ${disconnectReason}`);
+				});
+				socket.on(BUILD_IN_SOCKET_GAME_EVENTS.ERROR, (error) => {
+					console.log(`Socket Error - ${error}`);
+					socket.disconnect();
+				});
+				gameAndPlayerResult = {game, player};
+			}
+		}	
+		return gameAndPlayerResult;
+	}
+	protected EmitToRoomAndSender(socket: Socket, event: SOCKET_EVENT, gameId: string, ...args: any[]): void
+	{
+		socket.to(gameId).emit(event, ...args);
+		socket.emit(event, ...args);
+	}
+
     private static InitializeIo(namespace: string): void
     {
 		SocketHandler.io

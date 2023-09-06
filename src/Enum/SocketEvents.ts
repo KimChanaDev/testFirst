@@ -1,4 +1,6 @@
-export enum SOCKET_GAME_EVENTS {
+export type SOCKET_EVENT = SOCKET_GAME_EVENTS | BUILD_IN_SOCKET_GAME_EVENTS;
+export enum SOCKET_GAME_EVENTS
+{
 	PLAYER_CONNECTED = 'player_connected',
 	PLAYER_DISCONNECTED = 'player_disconnected',
 	PLAYERS_IN_GAME = 'players_in_game',
@@ -11,4 +13,10 @@ export enum SOCKET_GAME_EVENTS {
 	TURN_FINISHED = 'turn_finished',
 	UPDATE_ACTIONS = 'update_actions',
 	GAME_FINISHED = 'game_finished',
+}
+export enum BUILD_IN_SOCKET_GAME_EVENTS
+{
+	CONNECTION = 'connection',
+	DISCONNECT = 'disconnect',
+	ERROR = 'error',
 }
