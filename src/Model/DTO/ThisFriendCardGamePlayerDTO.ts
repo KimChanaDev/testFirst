@@ -4,7 +4,7 @@ import { FriendCardGamePlayer } from "../../GameFlow/FriendCardGamePlayer.js";
 export class ThisFriendCardGamePlayerDTO {
 	constructor(private id: string, private username: string, private cardIds: CardId[]) {}
 
-	static CreateFromFriendCardGamePlayer(friendCardGamePlayer: FriendCardGamePlayer): ThisFriendCardGamePlayerDTO {
+	public static CreateFromFriendCardGamePlayer(friendCardGamePlayer: FriendCardGamePlayer): ThisFriendCardGamePlayerDTO {
 		return new ThisFriendCardGamePlayerDTO(friendCardGamePlayer.id, friendCardGamePlayer.username, friendCardGamePlayer.deckLogic.GetInDeck());
 	}
 }

@@ -4,7 +4,7 @@ import { GAME_TYPE } from '../Enum/GameType.js';
 import { GameLogic } from '../GameLogic/GameLogic.js';
 import { PlayerLogic } from '../GameLogic//PlayerLogic.js';
 import { UserModel } from '../Model/UserEntity.js';
-import { GamesStore } from '../GameLogic/GameStoreLogic.js';
+import { GamesStoreLogic } from '../GameLogic/GameStoreLogic.js';
 import { GAME_STATE } from '../Enum/GameState.js';
 import { PlayerFactory } from '../GameFlow/PlayerFactory.js';
 import { PlayerDTO } from '../Model/DTO/PlayerDTO.js';
@@ -74,7 +74,7 @@ export abstract class SocketHandler
 			try 
 			{
 				const user = await UserModel.findById(userId);
-				const game = GamesStore.getInstance.GetGame(gameId);
+				const game = GamesStoreLogic.getInstance.GetGame(gameId);
 
 				if (!user)
 					nextFunction = Next(); //TODO throw error

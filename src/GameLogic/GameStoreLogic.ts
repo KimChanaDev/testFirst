@@ -1,12 +1,12 @@
 import { GameLogic } from './GameLogic.js';
 import { GAME_STATE } from '../Enum/GameState.js';
-export class GamesStore {
-	private static instance: GamesStore;
+export class GamesStoreLogic {
+	private static instance: GamesStoreLogic;
 	private activeGames = new Map<string, GameLogic>();
 
     private constructor() {}
 
-	static get getInstance(): GamesStore {
+	static get getInstance(): GamesStoreLogic {
 		return this.instance || (this.instance = new this());
 	}
 

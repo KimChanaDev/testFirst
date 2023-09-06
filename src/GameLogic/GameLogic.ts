@@ -1,7 +1,7 @@
 import { GAME_STATE } from "../Enum/GameState.js";
 import { GAME_TYPE } from "../Enum/GameType.js";
 import { PlayerDTO } from "../Model/DTO/PlayerDTO.js";
-import { GamesStore } from "./GameStoreLogic.js";
+import { GamesStoreLogic } from "./GameStoreLogic.js";
 import { PlayerLogic } from "./PlayerLogic.js";
 
 export abstract class GameLogic
@@ -71,7 +71,7 @@ export abstract class GameLogic
     }
     protected StartRemoveFromGameStoreTimeout(): void {
         this.removeFromGameStoreTimeout = setTimeout(() => {
-            GamesStore.getInstance.DeleteGame(this.id);
+            GamesStoreLogic.getInstance.DeleteGame(this.id);
         }, 3 * 60000);
     }
 
