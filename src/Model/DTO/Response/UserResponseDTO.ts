@@ -1,15 +1,14 @@
 import { PlayerLogic } from "../../../GameLogic/PlayerLogic.js";
-import { UserDocument } from "../../UserEntity.js";
-import { Document, ObjectId } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { UserDocument } from "../../Entity/UserEntity.js";
 export class UserResponseDTO
 {
 	constructor(private id: string, private username: string) {}
 
 	public static CreateFromUserDocument(
-		savedUser: Document<any, any, UserDocument> &
-			UserDocument & {
-				_id: ObjectId;
-			}
+		savedUser: Document<unknown, {}, UserDocument> & UserDocument & {
+			_id: Types.ObjectId;
+		}
 	): UserResponseDTO
     {
 		return new UserResponseDTO(savedUser.id, savedUser.username);

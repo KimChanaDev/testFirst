@@ -4,24 +4,23 @@ import { ExpressRouter } from "./ExpressRouter.js";
 import { GamesStoreLogic } from "../GameLogic/GameStoreLogic.js";
 import { GameResponseDTO } from "../Model/DTO/Response/GameResponseDTO.js";
 import { GameLogic } from "../GameLogic/GameLogic.js";
-import { HttpError } from "../Error/HttpError.js";
 import { ValidationMiddleware } from "../Middleware/ValidationMiddleware.js";
 import { CreateGameDTO } from "../Model/DTO/CreateGameDTO.js";
 import { BadRequestError } from "../Error/BadRequestError.js";
 import { DB_RESOURCES } from "../Enum/DatabaseResource.js";
 import { ResourceNotFoundError } from "../Error/ResourceNotFoundError.js";
-import { UserModel } from "../Model/UserEntity.js";
-import { GameModel } from "../Model/GameEntity.js";
+import { GameModel } from "../Model/Entity/GameEntity.js";
 import { GameFactory } from "../GameFlow/GameFactory.js";
+import { UserModel } from "../Model/Entity/UserEntity.js";
 
 export class GameController extends ExpressRouter
 {
     public path: string = "/games";
     constructor() {
         super();
-        this.initializeRoutes();
+        this.InitializeRoutes();
     }
-    private initializeRoutes(): void
+    private InitializeRoutes(): void
     {
 		this.router.get('', JwtAuthMiddleware, this.GetAllGames);
         this.router.get('/:gameId', JwtAuthMiddleware, this.GetGame);

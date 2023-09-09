@@ -1,5 +1,5 @@
 import { Document, model, ObjectId, Schema } from 'mongoose';
-import { GAME_TYPE } from '../Enum/GameType.js';
+import { GAME_TYPE } from '../../Enum/GameType.js';
 
 export interface GameDocument extends Document {
 	gameType: GAME_TYPE;
