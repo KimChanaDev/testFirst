@@ -46,7 +46,7 @@ export class UserController extends ExpressRouter
 		if (!user) return next(new InvalidCredentialsError());
 		if (!ValidatePassword(newUserData.password, user.hash, user.salt)) return next(new InvalidCredentialsError());
 
-		const token = IssueJWT(user);
+		const token: string = IssueJWT(user);
 		res.json(new LoginResponseDTO(UserResponseDTO.CreateFromUserDocument(user), token));
     }
 }
