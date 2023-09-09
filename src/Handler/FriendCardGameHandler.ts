@@ -9,6 +9,8 @@ import { CardId } from "../Enum/CardConstant.js";
 import { CardPlayedDTO } from "../Model/DTO/CardPlayedDTO.js";
 import { BaseResponseDTO } from "../Model/DTO/Response/BaseResponseDTO.js";
 import { CardPlayedResponseDTO } from "../Model/DTO/Response/CardPlayedResponseDTO.js";
+import { TurnFinishedDTO } from "../Model/DTO/TurnFinishedDTO.js";
+import { TurnFinishedResponseDTO } from "../Model/DTO/Response/TurnFinishedResponseDTO.js";
 
 export class FriendCardGameHandler extends SocketHandler
 {
@@ -33,9 +35,13 @@ export class FriendCardGameHandler extends SocketHandler
 		);
         
         socket.on(SOCKET_GAME_EVENTS.CARD_PLAYED,(cardId: CardId, callback: (response: CardPlayedResponseDTO | BaseResponseDTO) => void) => {
-				if (!game.CanPlayerPlayCard(player, cardId))
+                let response: CardPlayedResponseDTO | BaseResponseDTO;
+                if (!game.CanPlayerPlayCard(player, cardId))
                 {
-                    callback({ success: false, error: 'Cannot play that card' });
+                    response = {
+                        success: false,
+                        error: 'Cannot play that card' 
+                    } as BaseResponseDTO;
                 } 
                 else
                 {
@@ -46,13 +52,43 @@ export class FriendCardGameHandler extends SocketHandler
                         cardId: playedCard
                     };
                     socket.to(game.id).emit(SOCKET_GAME_EVENTS.CARD_PLAYED, cardPlayedDTO);
-                    callback({
+                    response = {
                         success: true,
                         actions: game.GetActionsDTOForPlayer(player),
                         cardId: playedCard
-                    });
+                    } as CardPlayedResponseDTO
                 }
-			}
-		);
+                callback(response);
+		    }
+        );
+        
+        socket.on(SOCKET_GAME_EVENTS.TURN_FINISHED,(callback: (response: TurnFinishedResponseDTO | BaseResponseDTO) => void) => {
+                let response: TurnFinishedResponseDTO | BaseResponseDTO;
+                if (!game.CanPlayerFinishTurn(player))
+                {
+                    response = {
+                        success: false,
+                        error: 'Cannot finish turn'
+                    } as BaseResponseDTO;
+                }
+                else
+                {
+                    game.FinishTurn();
+                    const currentPlayer: FriendCardPlayer = game.currentPlayer;
+                    const turnFinishedDTO: TurnFinishedDTO = { playerId: currentPlayer.id };
+                    socket.to(game.id).emit(SOCKET_GAME_EVENTS.TURN_FINISHED, turnFinishedDTO);
+                    // if (currentPlayer.id !== player.id)
+                    // {
+                    //     socket.to(currentPlayer.socketId).emit(SOCKET_GAME_EVENTS.UPDATE_ACTIONS, game.GetActionsDTOForPlayer(currentPlayer));
+                    // }
+                    response = {
+                        success: true,
+                        playerId: currentPlayer.id,
+                        actions: game.GetActionsDTOForPlayer(player)
+                    } as TurnFinishedResponseDTO;
+                }
+                callback(response);
+            }
+        );
     }
 }

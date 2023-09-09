@@ -36,7 +36,7 @@ export class FriendCardGame extends GameLogic
     {
         return !this.IsPlayerTurn(player.id) ? [] : player.handDeck.GetInDeck();
     }
-    private CanPlayerFinishTurn(player: FriendCardPlayer): boolean
+    public CanPlayerFinishTurn(player: FriendCardPlayer): boolean
     {
         return !this.IsPlayerTurn(player.id) || player.numCardsToTake > 0 ? false : true;
 	}
@@ -63,11 +63,14 @@ export class FriendCardGame extends GameLogic
     }
     private NextPlayer() : void
     {
-
+        if (this.currentPlayerNumber >= this.numPlayersInGame - 1) this.currentPlayerNumber = 0;
+		else this.currentPlayerNumber++;
     }
     public FinishTurn() : void
     {
-
+        if (this.currentPlayer.numTurnsToWait > 0) this.currentPlayer.numTurnsToWait--;
+		this.NextPlayer();
+		//while (!this.currentPlayer.isActive) return this.FinishTurn();
     }
     public PlayCard(cardId: CardId) : CardId
     {
