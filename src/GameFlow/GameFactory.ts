@@ -1,5 +1,5 @@
 import { GAME_TYPE } from "../Enum/GameType.js";
-import { BadRequestError } from "../Error/BadRequestError.js";
+import { BadRequestError } from "../Error/ErrorException.js";
 import { GameLogic } from "../GameLogic/GameLogic.js";
 import { FriendCardGame } from "./FriendCardGame.js";
 

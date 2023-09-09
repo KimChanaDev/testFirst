@@ -6,12 +6,11 @@ import { GameResponseDTO } from "../Model/DTO/Response/GameResponseDTO.js";
 import { GameLogic } from "../GameLogic/GameLogic.js";
 import { ValidationMiddleware } from "../Middleware/ValidationMiddleware.js";
 import { CreateGameDTO } from "../Model/DTO/CreateGameDTO.js";
-import { BadRequestError } from "../Error/BadRequestError.js";
 import { DB_RESOURCES } from "../Enum/DatabaseResource.js";
-import { ResourceNotFoundError } from "../Error/ResourceNotFoundError.js";
 import { GameModel } from "../Model/Entity/GameEntity.js";
 import { GameFactory } from "../GameFlow/GameFactory.js";
 import { UserModel } from "../Model/Entity/UserEntity.js";
+import { BadRequestError, ResourceNotFoundError } from "../Error/ErrorException.js";
 
 export class GameController extends ExpressRouter
 {

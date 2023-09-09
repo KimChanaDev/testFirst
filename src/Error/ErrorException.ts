@@ -1,8 +1,19 @@
+import { DB_RESOURCES } from "../Enum/DatabaseResource.js";
 import { HttpError } from "./HttpError.js";
 
+export class BadRequestError extends HttpError {
+	constructor() {
+		super(400, 'Bad request');
+	}
+}
 export class InvalidCredentialsError extends HttpError {
 	constructor() {
 		super(401, 'Invalid username or password');
+	}
+}
+export class ResourceNotFoundError extends HttpError {
+	constructor(resource: DB_RESOURCES, id: string) {
+		super(404, `${resource} with ${id} not found`);
 	}
 }
 export class UserExistsError extends HttpError

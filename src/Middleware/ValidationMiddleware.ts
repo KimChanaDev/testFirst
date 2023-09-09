@@ -1,7 +1,7 @@
 import { ClassConstructor, plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
-import { BadRequestError } from '../Error/BadRequestError.js';
+import { BadRequestError } from '../Error/ErrorException.js';
 
 export function ValidationMiddleware(type: ClassConstructor<object>): RequestHandler {
 	return (req: Request, res: Response, next: NextFunction): void => {
