@@ -1,5 +1,5 @@
 import { GAME_TYPE } from "../Enum/GameType.js";
-import { FriendCardGamePlayer } from "./FriendCardGamePlayer.js";
+import { FriendCardPlayer } from "./FriendCardPlayer.js";
 import { PlayerLogic } from "../GameLogic/PlayerLogic.js";
 
 export class PlayerFactory
@@ -13,7 +13,7 @@ export class PlayerFactory
 	): PlayerLogic
     {
         if (gameType === GAME_TYPE.FRIENDCARDGAME) 
-            return new FriendCardGamePlayer(id, username, socketId, isOwner);
+            return new FriendCardPlayer(id, username, socketId, isOwner);
         //throw new BadRequestError(); 404
         return null!; // remove when throw err
 	}

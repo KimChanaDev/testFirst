@@ -38,12 +38,12 @@ export abstract class GameLogic
 		return this.maxPlayers - this.numPlayersInGame <= 0;
 	}
 
-    public Start(): void 
+    public SetStartState(): void 
     {
 		this.gameState = GAME_STATE.STARTED;
 	}
 
-    public Finish(): void 
+    public SetFinishState(): void 
     {
 		this.gameState = GAME_STATE.FINISHED;
 	}

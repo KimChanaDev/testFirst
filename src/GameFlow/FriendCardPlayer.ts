@@ -2,7 +2,7 @@ import { CardId } from "../Enum/CardConstant.js";
 import { DeckLogic } from "../GameLogic/DeckLogic.js";
 import { PlayerLogic } from "../GameLogic/PlayerLogic.js";
 
-export class FriendCardGamePlayer extends PlayerLogic
+export class FriendCardPlayer extends PlayerLogic
 {
 	public deckLogic: DeckLogic = new DeckLogic();
 	public numCardsToTake: number = 0;

@@ -1,9 +1,9 @@
-import { FriendCardGamePlayer } from "../../GameFlow/FriendCardGamePlayer.js";
+import { FriendCardPlayer } from "../../GameFlow/FriendCardPlayer.js";
 
 export class OtherFriendCardGamePlayerDTO {
 	constructor(private id: string, private username: string, private numCards: number) {}
 
-	public static CreateFromFriendCardGamePlayer(friendCardGamePlayer: FriendCardGamePlayer): OtherFriendCardGamePlayerDTO {
+	public static CreateFromFriendCardGamePlayer(friendCardGamePlayer: FriendCardPlayer): OtherFriendCardGamePlayerDTO {
 		return new OtherFriendCardGamePlayerDTO(
 			friendCardGamePlayer.id,
 			friendCardGamePlayer.username,
