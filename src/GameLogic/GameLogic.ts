@@ -17,14 +17,14 @@ export abstract class GameLogic
 		public readonly maxPlayers: number,
 		public readonly roomName: string,
 		public readonly isPasswordProtected: boolean,
-		public readonly created: number,
+		public readonly createdAt: Date,
 		public readonly id: string,
 		public readonly password?: string)
     {
     }
 
     public get numPlayersInGame(): number 
-    {
+    {   
 		return this.playersInGame.size;
 	}
 

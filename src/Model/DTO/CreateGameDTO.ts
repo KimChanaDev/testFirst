@@ -1,5 +1,5 @@
 import { IsEnum, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
-import { GAME_TYPE } from "../Enum/GameType.js";
+import { GAME_TYPE } from "../../Enum/GameType.js";
 
 export class CreateGameDTO
 {

@@ -6,7 +6,7 @@ export interface GameDocument extends Document {
 	ownerId: ObjectId;
 	maxPlayers: number;
 	roomName: string;
-	created: number;
+	createdAt: Date;
 	isPasswordProtected: boolean;
 	id: string;
 }
@@ -32,8 +32,8 @@ const gameSchema = new Schema<GameDocument>({
 		maxlength: 20,
 		required: true,
 	},
-	created: {
-		type: Number,
+	createdAt: {
+		type: Date,
 		required: true,
 	},
 	isPasswordProtected: {

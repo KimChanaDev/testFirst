@@ -1,10 +1,10 @@
 import { model, Schema } from 'mongoose';
 
 export interface UserDocument extends Document {
+	id: string;
 	username: string;
 	hash: string;
 	salt: string;
-	id: string;
 	level: number;
 	win: number;
 	lose: number;
