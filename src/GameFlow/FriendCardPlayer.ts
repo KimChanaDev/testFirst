@@ -4,7 +4,7 @@ import { PlayerLogic } from "../GameLogic/PlayerLogic.js";
 
 export class FriendCardPlayer extends PlayerLogic
 {
-	public deckLogic: DeckLogic = new DeckLogic();
+	public handDeck: DeckLogic = new DeckLogic();
 	public numCardsToTake: number = 0;
 	public numTurnsToWait: number = 0;
 	public requestedCardToPlay: CardId | null = null;
