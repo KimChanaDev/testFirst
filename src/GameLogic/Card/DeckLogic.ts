@@ -1,5 +1,5 @@
-import { CardId, ColorType, Colors, ShapeType, Shapes } from "../Enum/CardConstant.js";
-import { RandomArrayElement } from './Utils/Tools.js';
+import { CardId, ColorType, Colors, ShapeType, Shapes } from "../../Enum/CardConstant.js";
+import { RandomArrayElement } from '../Utils/Tools.js';
 
 export class DeckLogic
 {

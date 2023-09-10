@@ -1,4 +1,4 @@
-import { CardId, ColorType, ShapeType, Shapes } from "../Enum/CardConstant.js";
+import { CardId, ColorType, ShapeType, Shapes } from "../../Enum/CardConstant.js";
 
 export abstract class CardLogic
 {

@@ -1,8 +1,8 @@
-import { GAME_STATE } from "../Enum/GameState.js";
-import { GAME_TYPE } from "../Enum/GameType.js";
-import { PlayerDTO } from "../Model/DTO/PlayerDTO.js";
+import { GAME_STATE } from "../../Enum/GameState.js";
+import { GAME_TYPE } from "../../Enum/GameType.js";
+import { PlayerDTO } from "../../Model/DTO/PlayerDTO.js";
 import { GamesStoreLogic } from "./GameStoreLogic.js";
-import { PlayerLogic } from "./PlayerLogic.js";
+import { PlayerLogic } from "../Player/PlayerLogic.js";
 
 export abstract class GameLogic
 {

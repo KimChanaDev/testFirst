@@ -1,11 +1,11 @@
 import { Namespace, Server, Socket} from 'socket.io';
 import { ExtendedError } from '../../node_modules/socket.io/dist/namespace.js';
 import { GAME_TYPE } from '../Enum/GameType.js';
-import { GameLogic } from '../GameLogic/GameLogic.js';
-import { PlayerLogic } from '../GameLogic//PlayerLogic.js';
-import { GamesStoreLogic } from '../GameLogic/GameStoreLogic.js';
+import { GameLogic } from '../GameLogic/Game/GameLogic.js';
+import { PlayerLogic } from '../GameLogic/Player/PlayerLogic.js';
+import { GamesStoreLogic } from '../GameLogic/Game/GameStoreLogic.js';
 import { GAME_STATE } from '../Enum/GameState.js';
-import { PlayerFactory } from '../GameFlow/PlayerFactory.js';
+import { PlayerFactoryLogic } from '../GameLogic/Player/PlayerFactoryLogic.js';
 import { PlayerDTO } from '../Model/DTO/PlayerDTO.js';
 import { BUILD_IN_SOCKET_GAME_EVENTS, SOCKET_EVENT, SOCKET_GAME_EVENTS } from '../Enum/SocketEvents.js';
 import { Types } from 'mongoose';
@@ -158,7 +158,7 @@ export abstract class SocketHandler
 				else
 				{
 					SocketHandler.connectedUsers.add(userId);
-					const newPlayer = PlayerFactory.CreatePlayerObject(
+					const newPlayer = PlayerFactoryLogic.CreatePlayerObject(
 						game.gameType,
 						user.id,
 						user.username,

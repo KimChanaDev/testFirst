@@ -1,8 +1,8 @@
 import { Server, Socket } from "socket.io";
 import { GAME_TYPE } from "../Enum/GameType.js";
 import { SocketHandler } from "./SocketHandler.js";
-import { FriendCardPlayer } from "../GameFlow/FriendCardPlayer.js";
-import { FriendCardGame } from "../GameFlow/FriendCardGame.js";
+import { FriendCardPlayerLogic } from "../GameLogic/Player/FriendCardPlayerLogic.js";
+import { FriendCardGameLogic } from "../GameLogic/Player/FriendCardGameLogic.js";
 import { SOCKET_GAME_EVENTS } from "../Enum/SocketEvents.js";
 import { FriendCardGameStateForPlayerDTO } from "../Model/DTO/FriendCardGameStateForPlayerDTO.js";
 import { CardId } from "../Enum/CardConstant.js";
@@ -17,10 +17,10 @@ export class FriendCardGameHandler extends SocketHandler
     constructor(io: Server) {
 		super(io, GAME_TYPE.FRIENDCARDGAME);
 	}
-    protected OnConnection(socket: Socket, game: FriendCardGame, player: FriendCardPlayer): void
+    protected OnConnection(socket: Socket, game: FriendCardGameLogic, player: FriendCardPlayerLogic): void
     {
-        if (!(game instanceof FriendCardGame)) throw new Error('GameType mismatch');
-		if (!(player instanceof FriendCardPlayer)) throw new Error('PlayerType mismatch');
+        if (!(game instanceof FriendCardGameLogic)) throw new Error('GameType mismatch');
+		if (!(player instanceof FriendCardPlayerLogic)) throw new Error('PlayerType mismatch');
 
         socket.on(SOCKET_GAME_EVENTS.START_GAME, (callback: (messageToLog: string) => void) => {
 			if (game.numPlayersInGame < 4) return callback('Minimum 4 players required');
@@ -74,7 +74,7 @@ export class FriendCardGameHandler extends SocketHandler
                 else
                 {
                     game.FinishTurn();
-                    const currentPlayer: FriendCardPlayer = game.currentPlayer;
+                    const currentPlayer: FriendCardPlayerLogic = game.currentPlayer;
                     const turnFinishedDTO: TurnFinishedDTO = { playerId: currentPlayer.id };
                     socket.to(game.id).emit(SOCKET_GAME_EVENTS.TURN_FINISHED, turnFinishedDTO);
                     // if (currentPlayer.id !== player.id)

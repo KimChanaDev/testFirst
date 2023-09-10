@@ -1,8 +1,8 @@
-import { CardId } from "../Enum/CardConstant.js";
-import { DeckLogic } from "../GameLogic/DeckLogic.js";
-import { PlayerLogic } from "../GameLogic/PlayerLogic.js";
+import { CardId } from "../../Enum/CardConstant.js";
+import { DeckLogic } from "../Card/DeckLogic.js";
+import { PlayerLogic } from "./PlayerLogic.js";
 
-export class FriendCardPlayer extends PlayerLogic
+export class FriendCardPlayerLogic extends PlayerLogic
 {
 	public handDeck: DeckLogic = new DeckLogic();
 	public numCardsToTake: number = 0;

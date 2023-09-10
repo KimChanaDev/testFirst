@@ -1,5 +1,5 @@
 import { GameLogic } from './GameLogic.js';
-import { GAME_STATE } from '../Enum/GameState.js';
+import { GAME_STATE } from '../../Enum/GameState.js';
 export class GamesStoreLogic
 {
 	private static instance: GamesStoreLogic;

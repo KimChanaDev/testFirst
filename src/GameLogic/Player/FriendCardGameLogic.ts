@@ -1,46 +1,46 @@
-import { CardId } from "../Enum/CardConstant.js";
-import { DeckLogic } from "../GameLogic/DeckLogic.js";
-import { GameLogic } from "../GameLogic/GameLogic.js";
-import { PlayerLogic } from "../GameLogic/PlayerLogic.js";
-import { ShuffleArray } from "../GameLogic/Utils/Tools.js";
-import { ActionsDTO } from "../Model/DTO/ActionsDTO.js";
-import { FriendCardPlayer } from "./FriendCardPlayer.js";
+import { CardId } from "../../Enum/CardConstant.js";
+import { DeckLogic } from "../Card/DeckLogic.js";
+import { GameLogic } from "../Game/GameLogic.js";
+import { PlayerLogic } from "./PlayerLogic.js";
+import { ShuffleArray } from "../Utils/Tools.js";
+import { ActionsDTO } from "../../Model/DTO/ActionsDTO.js";
+import { FriendCardPlayerLogic } from "./FriendCardPlayerLogic.js";
 
-export class FriendCardGame extends GameLogic
+export class FriendCardGameLogic extends GameLogic
 {
-    protected playersInGame = new Map<string, FriendCardPlayer>();
-    public winner?: FriendCardPlayer | undefined;
+    protected playersInGame = new Map<string, FriendCardPlayerLogic>();
+    public winner?: FriendCardPlayerLogic | undefined;
     private readonly deck = new DeckLogic();
 	private readonly discarded = new DeckLogic();
-    public playersInOrder: FriendCardPlayer[] = [];
+    public playersInOrder: FriendCardPlayerLogic[] = [];
     private currentPlayerNumber: number = 0;
 
 	//private isCardPlayedThisTurn: boolean = false;
 	//private isCardTakenThisTurn: boolean = false;
-    public get currentPlayer(): FriendCardPlayer
+    public get currentPlayer(): FriendCardPlayerLogic
     {
         return this.playersInOrder[this.currentPlayerNumber];
     }
-    public GetActionsDTOForPlayer(player: FriendCardPlayer): ActionsDTO {
+    public GetActionsDTOForPlayer(player: FriendCardPlayerLogic): ActionsDTO {
 		return {
 			canPlayerTakeCard: this.CanPlayerTakeCard(player),
 			cardsPlayerCanPlay: this.CardsPlayerCanPlay(player),
 			canPlayerFinishTurn: this.CanPlayerFinishTurn(player),
 		};
 	}
-    private CanPlayerTakeCard(player: FriendCardPlayer): boolean
+    private CanPlayerTakeCard(player: FriendCardPlayerLogic): boolean
     {
         return !this.IsPlayerTurn(player.id) ? false : true;
     }
-    private CardsPlayerCanPlay(player: FriendCardPlayer): CardId[]
+    private CardsPlayerCanPlay(player: FriendCardPlayerLogic): CardId[]
     {
         return !this.IsPlayerTurn(player.id) ? [] : player.handDeck.GetInDeck();
     }
-    public CanPlayerFinishTurn(player: FriendCardPlayer): boolean
+    public CanPlayerFinishTurn(player: FriendCardPlayerLogic): boolean
     {
         return !this.IsPlayerTurn(player.id) || player.numCardsToTake > 0 ? false : true;
 	}
-    public CanPlayerPlayCard(player: FriendCardPlayer, cardId: CardId): boolean
+    public CanPlayerPlayCard(player: FriendCardPlayerLogic, cardId: CardId): boolean
     {
         const playerHand: CardId[] = this.CardsPlayerCanPlay(player);
         return playerHand.indexOf(cardId) >= 0;
@@ -52,12 +52,12 @@ export class FriendCardGame extends GameLogic
         this.currentPlayerNumber = 0;
         this.deck.Full();
 		this.discarded.Empty();
-        this.playersInOrder.forEach((player: FriendCardPlayer) => {
+        this.playersInOrder.forEach((player: FriendCardPlayerLogic) => {
 			player.handDeck.Empty();
 			player.handDeck.Add(this.deck.PopNumRandomCards(13));
 		});
     }
-    public DisconnectPlayer(player: FriendCardPlayer) : void
+    public DisconnectPlayer(player: FriendCardPlayerLogic) : void
     {
 
     }

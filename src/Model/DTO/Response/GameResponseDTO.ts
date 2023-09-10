@@ -1,5 +1,5 @@
 import { GAME_TYPE } from "../../../Enum/GameType.js";
-import { GameLogic } from "../../../GameLogic/GameLogic.js";
+import { GameLogic } from "../../../GameLogic/Game/GameLogic.js";
 import { UserResponseDTO } from "./UserResponseDTO.js";
 
 export class GameResponseDTO

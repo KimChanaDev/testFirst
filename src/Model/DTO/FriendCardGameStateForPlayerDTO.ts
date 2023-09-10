@@ -1,6 +1,6 @@
 import { CardId } from "../../Enum/CardConstant.js";
-import { FriendCardGame } from "../../GameFlow/FriendCardGame.js";
-import { FriendCardPlayer } from "../../GameFlow/FriendCardPlayer.js";
+import { FriendCardGameLogic } from "../../GameLogic/Player/FriendCardGameLogic.js";
+import { FriendCardPlayerLogic } from "../../GameLogic/Player/FriendCardPlayerLogic.js";
 import { ActionsDTO } from "./ActionsDTO.js";
 import { OtherFriendCardGamePlayerDTO } from "./OtherFriendCardGamePlayerDTO.js";
 import { ThisFriendCardGamePlayerDTO } from "./ThisFriendCardGamePlayerDTO.js";
@@ -13,14 +13,14 @@ export class FriendCardGameStateForPlayerDTO{
 		private thisPlayerActions: ActionsDTO,
 	) {}
 
-	public static CreateFromFriendCardGameAndPlayer(friendCardGame: FriendCardGame, friendCardPlayer: FriendCardPlayer): FriendCardGameStateForPlayerDTO
+	public static CreateFromFriendCardGameAndPlayer(friendCardGame: FriendCardGameLogic, friendCardPlayer: FriendCardPlayerLogic): FriendCardGameStateForPlayerDTO
     {
 		return new FriendCardGameStateForPlayerDTO(
 			friendCardGame.currentPlayer.id,
 			ThisFriendCardGamePlayerDTO.CreateFromFriendCardGamePlayer(friendCardPlayer),
 			friendCardGame.playersInOrder
 				.filter((player) => !player.isDisconnected)
-				.map((friendCardPlayer: FriendCardPlayer) => OtherFriendCardGamePlayerDTO.CreateFromFriendCardGamePlayer(friendCardPlayer)),
+				.map((friendCardPlayer: FriendCardPlayerLogic) => OtherFriendCardGamePlayerDTO.CreateFromFriendCardGamePlayer(friendCardPlayer)),
 			friendCardGame.GetActionsDTOForPlayer(friendCardPlayer),
 		);
 	}

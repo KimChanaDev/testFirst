@@ -21,6 +21,7 @@ export class App
 		const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
 		const MONGO_PATH = process.env.MONGO_PATH;
         const mongoURI = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_PATH}?retryWrites=true&w=majority`;
+        console.log("Waiting for database connection...");
 		connect(mongoURI)
 			.then(() => console.log('MongoDB connected!'))
 			.catch((error: Error) => {

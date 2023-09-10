@@ -1,9 +1,10 @@
-import { GAME_TYPE } from "../Enum/GameType.js";
-import { BadRequestError } from "../Error/ErrorException.js";
-import { GameLogic } from "../GameLogic/GameLogic.js";
-import { FriendCardGame } from "./FriendCardGame.js";
+import { GAME_TYPE } from "../../Enum/GameType.js";
+import { BadRequestError } from "../../Error/ErrorException.js";
+import { GameLogic } from "./GameLogic.js";
+import { FriendCardGameLogic } from "../Player/FriendCardGameLogic.js";
 
-export class GameFactory {
+export class GameFactoryLogic
+{
 	public static CreateGame(
 		gameType: GAME_TYPE,
 		owner: { id: string; username: string },
@@ -16,7 +17,7 @@ export class GameFactory {
 	): GameLogic {
 		if (gameType === GAME_TYPE.FRIENDCARDGAME)
         {
-			return new FriendCardGame(
+			return new FriendCardGameLogic(
 				gameType,
 				owner,
 				maxPlayers,

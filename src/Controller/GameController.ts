@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtAuthMiddleware } from "../Middleware/JwtAuthMiddleware.js";
 import { ExpressRouter } from "./ExpressRouter.js";
-import { GamesStoreLogic } from "../GameLogic/GameStoreLogic.js";
+import { GamesStoreLogic } from "../GameLogic/Game/GameStoreLogic.js";
 import { GameResponseDTO } from "../Model/DTO/Response/GameResponseDTO.js";
-import { GameLogic } from "../GameLogic/GameLogic.js";
+import { GameLogic } from "../GameLogic/Game/GameLogic.js";
 import { ValidationMiddleware } from "../Middleware/ValidationMiddleware.js";
 import { CreateGameDTO } from "../Model/DTO/CreateGameDTO.js";
 import { DB_RESOURCES } from "../Enum/DatabaseResource.js";
 import { GameModel } from "../Model/Entity/GameEntity.js";
-import { GameFactory } from "../GameFlow/GameFactory.js";
+import { GameFactoryLogic } from "../GameLogic/Game/GameFactoryLogic.js";
 import { UserModel } from "../Model/Entity/UserEntity.js";
 import { BadRequestError, ResourceNotFoundError } from "../Error/ErrorException.js";
 
@@ -55,7 +55,7 @@ export class GameController extends ExpressRouter
 			isPasswordProtected: !!newGameData.password,
 		});
 		const savedGame = await createdGame.save();
-		const game = GameFactory.CreateGame(
+		const game = GameFactoryLogic.CreateGame(
 			savedGame.gameType,
 			{ id: owner.id, username: owner.username },
 			savedGame.maxPlayers,
