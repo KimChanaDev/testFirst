@@ -1,5 +1,7 @@
 import { UserDocument } from "../../../Model/Entity/UserEntity.js";
-import { JwtPayload, sign, verify } from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
+import pkg from 'jsonwebtoken';
+const { sign, verify } = pkg;
 import { readFileSync } from 'fs';
 import { PRIVATE_KEY_PATH, PUBLIC_KEY_PATH } from "../../../Configuration/GameConfiguration.js";
 import { JwtValidationError } from "../../../Enum/JwtValidationError.js";
