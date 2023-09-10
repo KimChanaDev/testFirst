@@ -1,10 +1,10 @@
 import { CardId } from "../../Enum/CardConstant.js";
 import { DeckLogic } from "../Card/DeckLogic.js";
-import { GameLogic } from "../Game/GameLogic.js";
-import { PlayerLogic } from "./PlayerLogic.js";
+import { GameLogic } from "./GameLogic.js";
+import { PlayerLogic } from "../Player/PlayerLogic.js";
 import { ShuffleArray } from "../Utils/Tools.js";
 import { ActionsDTO } from "../../Model/DTO/ActionsDTO.js";
-import { FriendCardPlayerLogic } from "./FriendCardPlayerLogic.js";
+import { FriendCardPlayerLogic } from "../Player/FriendCardPlayerLogic.js";
 
 export class FriendCardGameLogic extends GameLogic
 {

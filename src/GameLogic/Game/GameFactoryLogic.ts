@@ -1,7 +1,7 @@
 import { GAME_TYPE } from "../../Enum/GameType.js";
 import { BadRequestError } from "../../Error/ErrorException.js";
 import { GameLogic } from "./GameLogic.js";
-import { FriendCardGameLogic } from "../Player/FriendCardGameLogic.js";
+import { FriendCardGameLogic } from "./FriendCardGameLogic.js";
 
 export class GameFactoryLogic
 {

@@ -1,5 +1,5 @@
 import { CardId } from "../../Enum/CardConstant.js";
-import { FriendCardGameLogic } from "../../GameLogic/Player/FriendCardGameLogic.js";
+import { FriendCardGameLogic } from "../../GameLogic/Game/FriendCardGameLogic.js";
 import { FriendCardPlayerLogic } from "../../GameLogic/Player/FriendCardPlayerLogic.js";
 import { ActionsDTO } from "./ActionsDTO.js";
 import { OtherFriendCardGamePlayerDTO } from "./OtherFriendCardGamePlayerDTO.js";

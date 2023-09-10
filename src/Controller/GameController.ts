@@ -55,7 +55,7 @@ export class GameController extends ExpressRouter
 			isPasswordProtected: !!newGameData.password,
 		});
 		const savedGame = await createdGame.save();
-		const game = GameFactoryLogic.CreateGame(
+		const game: GameLogic = GameFactoryLogic.CreateGame(
 			savedGame.gameType,
 			{ id: owner.id, username: owner.username },
 			savedGame.maxPlayers,

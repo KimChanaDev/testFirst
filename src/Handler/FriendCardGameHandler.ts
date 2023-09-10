@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 import { GAME_TYPE } from "../Enum/GameType.js";
 import { SocketHandler } from "./SocketHandler.js";
 import { FriendCardPlayerLogic } from "../GameLogic/Player/FriendCardPlayerLogic.js";
-import { FriendCardGameLogic } from "../GameLogic/Player/FriendCardGameLogic.js";
+import { FriendCardGameLogic } from "../GameLogic/Game/FriendCardGameLogic.js";
 import { SOCKET_GAME_EVENTS } from "../Enum/SocketEvents.js";
 import { FriendCardGameStateForPlayerDTO } from "../Model/DTO/FriendCardGameStateForPlayerDTO.js";
 import { CardId } from "../Enum/CardConstant.js";

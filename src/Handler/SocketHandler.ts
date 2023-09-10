@@ -12,6 +12,11 @@ import { Types } from 'mongoose';
 import { GameFinishedDTO } from '../Model/DTO/GameFinishedDTO.js';
 import { log } from 'console';
 import { UserModel } from '../Model/Entity/UserEntity.js';
+import { SocketBadConnectionError, SocketGameAlreadyStartedError, SocketGameNotExistError, SocketRoomFullError, SocketSessionExpiredError, SocketUnauthorizedError, SocketUserAlreadyConnectedError, SocketWrongRoomPasswordError } from '../Error/SocketErrorException.js';
+import { IJwtValidation, ValidateJWT } from '../GameLogic/Utils/Authorization/JWT.js';
+import { JwtValidationError } from '../Enum/JwtValidationError.js';
+import { HttpError } from '../Error/HttpError.js';
+import { SocketError } from '../Error/SocketError.js';
 
 export type SocketNextFunction = (err?: ExtendedError | undefined) => void;
 export abstract class SocketHandler
@@ -104,33 +109,42 @@ export abstract class SocketHandler
 			.use(this.VerifyJwt)
 			.use(this.ConnectToGameRoom);
     }
-	private static AddMiddlewareDataProperty(socket: Socket, Next: SocketNextFunction): void
+	private static AddMiddlewareDataProperty(socket: Socket, next: SocketNextFunction): void
 	{
 		socket.middlewareData = {};
 	}
-	private static VerifyJwt(socket: Socket, Next: SocketNextFunction): void
+	private static VerifyJwt(socket: Socket, next: SocketNextFunction): void
 	{
-		// if( success )
-		// {
-		// 	socket.middlewareData.jwt = payload
-		// }
-		// else
-		// {
-		// 	next(new SomeError());
-		// }
+		if (!socket.handshake.query.token) 
+			return next(new SocketUnauthorizedError());
+		const validationResult: IJwtValidation = ValidateJWT(socket.handshake.query.token as string);
+		if (validationResult.success)
+		{
+			socket.middlewareData.jwt = validationResult.payload;
+			return next();
+		}
+		else if (validationResult.error === JwtValidationError.EXPIRED)
+		{
+			console.log(validationResult.error);
+			return next(new SocketSessionExpiredError());
+		}
+		else
+		{
+			return next(new SocketUnauthorizedError());
+		}
 	}
-	private static async ConnectToGameRoom(socket: Socket, Next: SocketNextFunction): Promise<void>
+	private static async ConnectToGameRoom(socket: Socket, next: SocketNextFunction): Promise<void>
 	{
 		const gameId = socket.handshake.query.gameId as string;
 		const userId = socket.middlewareData.jwt?.sub as string;
 		let nextFunction: void;
 		if (!socket.handshake.query.gameId || !socket.middlewareData.jwt)
 		{
-			nextFunction = Next(); //throw error
+			nextFunction = next(new SocketBadConnectionError());
 		}
 		else if(SocketHandler.connectedUsers.has(userId)) 
 		{
-			nextFunction = Next(); //throw error
+			nextFunction = next(new SocketUserAlreadyConnectedError());
 		}
 		else
 		{
@@ -138,23 +152,23 @@ export abstract class SocketHandler
 			{
 				const user = await UserModel.findById(userId);
 				const game = GamesStoreLogic.getInstance.GetGame(gameId);
-
+ 
 				if (!user)
-					nextFunction = Next(); //TODO throw error
+					nextFunction = next(new SocketBadConnectionError());
 				else if (!game)
-					nextFunction = Next(); //TODO throw error
+					nextFunction = next(new SocketGameNotExistError());
 				else if (game.gameState !== GAME_STATE.NOT_STARTED)
-					nextFunction = Next(); //TODO throw error
+					nextFunction = next(new SocketGameAlreadyStartedError());
 				else if (game.isPasswordProtected)
 				{
 					const password = socket.handshake.query.password;
 					if (!password)
-						nextFunction = Next(); //TODO throw error
+						nextFunction = next(new SocketWrongRoomPasswordError());
 					else if (game.password != password)
-						nextFunction = Next(); //TODO throw error
+						nextFunction = next(new SocketWrongRoomPasswordError());
 				}
 				else if (game.IsRoomFull())
-					nextFunction = Next(); //TODO throw error
+					nextFunction = next(new SocketRoomFullError());
 				else
 				{
 					SocketHandler.connectedUsers.add(userId);
@@ -172,14 +186,14 @@ export abstract class SocketHandler
 					 	players: game.GetAllPlayersDTO(),
 						thisPlayer: PlayerDTO.CreateFromPlayer(newPlayer),
 					});
-					nextFunction = Next(); // OK! Correct!
+					nextFunction = next();
 				}
 
 			} 
 			catch (error) 
 			{
 				console.log(error);
-				nextFunction = Next(); //TODO throw error
+				nextFunction = next(new SocketError());
 			}
 		}
 		return nextFunction;
