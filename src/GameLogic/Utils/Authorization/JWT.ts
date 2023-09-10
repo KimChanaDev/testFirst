@@ -27,32 +27,26 @@ export function IssueJWT(user: UserDocument): string {
 	const signedToken = sign(payload, PRIVATE_KEY, {
 		algorithm: 'RS256',
 	});
-	return 'Bearer ' + signedToken;
+	return signedToken;
 }
 export function ValidateJWT(jwt: string): IJwtValidation
 {
-	let result: IJwtValidation = { success: false };
-	const token: string = jwt.split(' ')[1];
 	try
 	{
-		const jwtPayload: string | JwtPayload = verify(token, PUBLIC_KEY, { algorithms: ['RS256'] });
-		result = { success: true, payload: jwtPayload as JwtPayload };
+		const jwtPayload: string | JwtPayload = verify(jwt, PUBLIC_KEY, { algorithms: ['RS256'] });
+		console.log("jwtPayload: "+jwtPayload);
+		
+		return { success: true, payload: jwtPayload as JwtPayload };
 	}
 	catch (error: any)
 	{
-		if (error?.message)
-		{
-			if (error.message === JwtValidationError.EXPIRED)
-				result = { success: false, error: JwtValidationError.EXPIRED };
-			if (error.message === JwtValidationError.INVALID)
-				result = { success: false, error: JwtValidationError.INVALID };
-		}
+		if (error?.message === JwtValidationError.EXPIRED)
+			return { success: false, error: JwtValidationError.EXPIRED };
+		else if (error?.message === JwtValidationError.INVALID)
+			return { success: false, error: JwtValidationError.INVALID };
 		else
-		{
-			result = { success: false, error: JwtValidationError.UNKNOWN };
-		}
+			return { success: false, error: JwtValidationError.UNKNOWN };
 	}
-	return result;
 }
 
 export interface IJwtValidation {

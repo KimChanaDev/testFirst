@@ -7,6 +7,7 @@ export function JwtAuthMiddleware(req: Request, res: Response, next: NextFunctio
 {
 	if (!req.headers.authorization) return next(new UnauthorizedError());
 	const validationResult: IJwtValidation = ValidateJWT(req.headers.authorization);
+	
 	if (validationResult.success) {
 		req.jwt = validationResult.payload;
 		return next();
