@@ -34,8 +34,6 @@ export function ValidateJWT(jwt: string): IJwtValidation
 	try
 	{
 		const jwtPayload: string | JwtPayload = verify(jwt, PUBLIC_KEY, { algorithms: ['RS256'] });
-		console.log("jwtPayload: "+jwtPayload);
-		
 		return { success: true, payload: jwtPayload as JwtPayload };
 	}
 	catch (error: any)
