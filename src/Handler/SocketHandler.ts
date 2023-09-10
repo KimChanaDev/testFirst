@@ -3,7 +3,6 @@ import { ExtendedError } from '../../node_modules/socket.io/dist/namespace.js';
 import { GAME_TYPE } from '../Enum/GameType.js';
 import { GameLogic } from '../GameLogic/GameLogic.js';
 import { PlayerLogic } from '../GameLogic//PlayerLogic.js';
-import { UserModel } from '../Model/UserEntity.js';
 import { GamesStoreLogic } from '../GameLogic/GameStoreLogic.js';
 import { GAME_STATE } from '../Enum/GameState.js';
 import { PlayerFactory } from '../GameFlow/PlayerFactory.js';
@@ -12,6 +11,7 @@ import { BUILD_IN_SOCKET_GAME_EVENTS, SOCKET_EVENT, SOCKET_GAME_EVENTS } from '.
 import { Types } from 'mongoose';
 import { GameFinishedDTO } from '../Model/DTO/GameFinishedDTO.js';
 import { log } from 'console';
+import { UserModel } from '../Model/Entity/UserEntity.js';
 
 export type SocketNextFunction = (err?: ExtendedError | undefined) => void;
 export abstract class SocketHandler

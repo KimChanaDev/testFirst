@@ -15,7 +15,8 @@ import { BadRequestError, ResourceNotFoundError } from "../Error/ErrorException.
 export class GameController extends ExpressRouter
 {
     public path: string = "/games";
-    constructor() {
+    constructor()
+	{
         super();
         this.InitializeRoutes();
     }
