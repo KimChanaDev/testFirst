@@ -22,7 +22,7 @@ export class GameResponseDTO
 			game.roomName,
 			game.isPasswordProtected,
 			game.id,
-			game.NumPlayersInGame
+			game.NumPlayersInGame()
 		);
 	}
 }

@@ -5,6 +5,6 @@ export class ThisFriendCardGamePlayerDTO {
 	constructor(private id: string, private username: string, private cardIds: CardId[]) {}
 
 	public static CreateFromFriendCardGamePlayer(friendCardGamePlayer: FriendCardPlayerLogic): ThisFriendCardGamePlayerDTO {
-		return new ThisFriendCardGamePlayerDTO(friendCardGamePlayer.id, friendCardGamePlayer.username, friendCardGamePlayer.handCard.GetInDeck());
+		return new ThisFriendCardGamePlayerDTO(friendCardGamePlayer.id, friendCardGamePlayer.username, friendCardGamePlayer.GetHandCard().GetInDeck());
 	}
 }

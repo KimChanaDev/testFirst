@@ -37,6 +37,8 @@ export abstract class GameRoomLogic
     public SetStartState(): void { this.gameState = GAME_STATE.STARTED; }
     public SetFinishState(): void { this.gameState = GAME_STATE.FINISHED; }
     public GetGameRoomState(): number { return this.gameState }
+    public GetWinner(): PlayerLogic | undefined { return this.winner;}
+    public SetWinner(player: PlayerLogic) { this.winner = player;}
     public DisconnectPlayer(player: PlayerLogic): void
     {
         if (this.gameState === GAME_STATE.NOT_STARTED) this.playersInGame.delete(player.id);

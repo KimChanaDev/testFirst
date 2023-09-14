@@ -63,7 +63,7 @@ export abstract class SocketHandler
 			const gameId: string = socket.handshake.query.gameId as string;
 			const userId: string = socket.middlewareData.jwt?.sub as string;
 
-			const game: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGame(gameId) as GameRoomLogic;
+			const game: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGameById(gameId) as GameRoomLogic;
 			const player: PlayerLogic | undefined = game?.GetPlayerById(userId) as PlayerLogic;
 			if (!game || !player)
 			{
@@ -78,8 +78,8 @@ export abstract class SocketHandler
 				socket.on(BUILD_IN_SOCKET_GAME_EVENTS.DISCONNECT, (disconnectReason: string) => {
 					SocketHandler.connectedUsers.delete(userId);
 					game.DisconnectPlayer(player);
-					if (game.gameState === GAME_STATE.FINISHED) {
-						const gameFinishedDTO: GameFinishedDTO = { winnerUsername: (game.winner as PlayerLogic).username };
+					if (game.GetGameRoomState() === GAME_STATE.FINISHED) {
+						const gameFinishedDTO: GameFinishedDTO = { winnerUsername: (game.GetWinner() as PlayerLogic).username };
 						this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.GAME_FINISHED, gameId, gameFinishedDTO);
 					} else
 						this.EmitToRoomAndSender( socket, SOCKET_GAME_EVENTS.PLAYER_DISCONNECTED, gameId, PlayerDTO.CreateFromPlayer(player)
@@ -151,13 +151,13 @@ export abstract class SocketHandler
 			try 
 			{
 				const user = await UserModel.findById(userId);
-				const game = GamesStoreLogic.getInstance.GetGame(gameId);
+				const game = GamesStoreLogic.getInstance.GetGameById(gameId);
  
 				if (!user)
 					nextFunction = next(new SocketBadConnectionError());
 				else if (!game)
 					nextFunction = next(new SocketGameNotExistError());
-				else if (game.gameState !== GAME_STATE.NOT_STARTED)
+				else if (game.GetGameRoomState() !== GAME_STATE.NOT_STARTED)
 					nextFunction = next(new SocketGameAlreadyStartedError());
 				else if (game.isPasswordProtected)
 				{

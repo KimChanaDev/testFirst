@@ -7,7 +7,7 @@ export class OtherFriendCardGamePlayerDTO {
 		return new OtherFriendCardGamePlayerDTO(
 			friendCardGamePlayer.id,
 			friendCardGamePlayer.username,
-			friendCardGamePlayer.handCard.GetNumOfCardsInDeck()
+			friendCardGamePlayer.GetHandCard().GetNumOfCardsInDeck()
 		);
 	}
 }

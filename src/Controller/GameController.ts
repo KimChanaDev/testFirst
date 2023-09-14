@@ -28,13 +28,13 @@ export class GameController extends ExpressRouter
     }
     private GetAllGames(req: Request, res: Response, _next: NextFunction): void
     {
-        const response: GameResponseDTO[] = GamesStoreLogic.getInstance.allNotStartedGamesAsArray.map(game => GameResponseDTO.CreateFromGame(game));
+        const response: GameResponseDTO[] = GamesStoreLogic.getInstance.GetAllNotStartedGamesAsArray().map(game => GameResponseDTO.CreateFromGame(game));
 		res.json(response);
 	}
     private async GetGame(req: Request, res: Response, next: NextFunction): Promise<void>
     {
 		const gameId: string = req.params.gameId;
-		const game: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGame(gameId);
+		const game: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGameById(gameId);
 		if (!game) return next(new ResourceNotFoundError(DB_RESOURCES.GAME, gameId));
         const response: GameResponseDTO = GameResponseDTO.CreateFromGame(game);
 		res.json(response);
