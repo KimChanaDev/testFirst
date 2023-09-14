@@ -6,6 +6,7 @@ import { ShuffleArray } from "../Utils/Tools.js";
 import { ActionsDTO } from "../../Model/DTO/ActionsDTO.js";
 import { FriendCardPlayerLogic } from "../Player/FriendCardPlayerLogic.js";
 import { FriendCardGameRoundLogic } from "./FriendCardGameRoundLogic.js";
+import { GAME_STATE } from "../../Enum/GameState.js";
 
 export class FriendCardGameRoomLogic extends GameRoomLogic
 {
@@ -16,9 +17,11 @@ export class FriendCardGameRoomLogic extends GameRoomLogic
     private readonly totalNumRound = 4;
     public Start() : void
     {
+        if (this.NumPlayersInGame() < 4) throw Error("Minimum 4 players required");
+        if (!this.AreAllPlayersReady()) throw Error('Not all players ready');
         this.InitRoundInGame();
+        this.GetCurrentRoundGame().InitializePlayerAndCardHand(this.GetAllPlayerAsArray());
         super.SetStartState();
-        this.GetCurrentRoundGame()?.StartRound(this.GetAllPlayerAsArray());
     }
     private InitRoundInGame(): void
     {
@@ -33,6 +36,25 @@ export class FriendCardGameRoomLogic extends GameRoomLogic
         if (this.currentRoundNumber >= this.totalNumRound) this.currentRoundNumber = 0;
     }
     public DisconnectPlayer(player: FriendCardPlayerLogic) : void
+    {
+        super.DisconnectPlayer(player);
+
+		if (this.GetGameRoomState() === GAME_STATE.STARTED)
+        {
+			if (this.NumConnectedPlayersInGame() === 1)
+            {
+				this.winner = Array.from(this.playersInGame.values()).find((player) => !player.GetIsDisconnected());
+				return this.GetCurrentRoundGame().FinishRound();
+			}
+            else
+            {
+                // TODO add bot player
+                // if (this.GetCurrentRoundGame().GetCurrentPlayer().id === player.id)  // TODO bot play
+                //     console.log('Bot play!');
+            }
+		}
+    }
+    public FinishGame(): void
     {
 
     }

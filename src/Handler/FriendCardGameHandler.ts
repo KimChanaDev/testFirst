@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { GAME_TYPE } from "../Enum/GameType.js";
-import { SocketHandler } from "./SocketHandler.js";
+import { SocketHandler } from './SocketHandler.js';
 import { FriendCardPlayerLogic } from "../GameLogic/Player/FriendCardPlayerLogic.js";
 import { FriendCardGameRoomLogic } from "../GameLogic/Game/FriendCardGameRoomLogic.js";
 import { SOCKET_GAME_EVENTS } from "../Enum/SocketEvents.js";
@@ -12,6 +12,7 @@ import { CardPlayedResponseDTO } from "../Model/DTO/Response/CardPlayedResponseD
 import { TurnFinishedDTO } from "../Model/DTO/TurnFinishedDTO.js";
 import { TurnFinishedResponseDTO } from "../Model/DTO/Response/TurnFinishedResponseDTO.js";
 import { GAME_STATE } from "../Enum/GameState.js";
+import { AuctionPointDTO, AuctionPointResponseDTO } from "../Model/DTO/AuctionPointDTO.js";
 
 export class FriendCardGameHandler extends SocketHandler
 {
@@ -24,15 +25,56 @@ export class FriendCardGameHandler extends SocketHandler
 		if (!(player instanceof FriendCardPlayerLogic)) throw new Error('PlayerType mismatch');
 
         socket.on(SOCKET_GAME_EVENTS.START_GAME, (callback: (messageToLog: string) => void) => {
-			if (gameRoom.NumPlayersInGame() < 4) return callback('Minimum 4 players required');
-			if (!player.isOwner && !gameRoom.AreAllPlayersReady()) return callback('Not all players ready');
-			gameRoom.Start();
-			this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.START_GAME, gameRoom.id);
+			if (player.id === gameRoom.owner.id)
+            {
+                try
+                {
+                    gameRoom.Start();
+                    this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.START_GAME, gameRoom.id);
+                }
+                catch(ex : any)
+                {
+                    callback(ex?.message);
+                }
+            }
+            else
+            {
+                callback("You are not Host");
+            }
 		});
-        socket.on(SOCKET_GAME_EVENTS.AUCTION, (auctionPoint: number, callback: (messageToLog: string) => void) => {
-            if ( auctionPoint % 5 !== 0 || auctionPoint < 55 || auctionPoint > 100) return callback('Incorrect auction point');
-            if ( gameRoom.GetGameRoomState() !== GAME_STATE.STARTED) return callback('Game not started');
-            gameRoom.GetCurrentRoundGame()?.CalculateAuction(auctionPoint);
+        socket.on(SOCKET_GAME_EVENTS.AUCTION, (auctionPass: boolean, auctionPoint: number, callback: (response: AuctionPointResponseDTO | BaseResponseDTO) => void) => {
+            try
+            {
+                if(gameRoom.GetGameRoomState() === GAME_STATE.STARTED && gameRoom.GetCurrentRoundGame().GetRoundState() === GAME_STATE.STARTED)
+                {
+                    gameRoom.GetCurrentRoundGame().Auction(auctionPass, auctionPoint);
+                    const [nextPlayerId, currentAuctionPoint] = gameRoom.GetCurrentRoundGame().GetInfoForAuctionPointResponse();
+                    const auctionPointDTO: AuctionPointDTO = {
+                        nextPlayerId: nextPlayerId,
+                        currentAuctionPoint: currentAuctionPoint
+                    };
+                    socket.to(gameRoom.id).emit(SOCKET_GAME_EVENTS.AUCTION, auctionPointDTO);
+                    callback({
+                        success: true,
+                        nextPlayerId: nextPlayerId,
+                        currentAuctionPoint: currentAuctionPoint
+                    } as AuctionPointResponseDTO);
+                }
+                else
+                {
+                    callback({
+                        success: false,
+                        error: "Game not started"
+                    } as BaseResponseDTO);
+                }
+            }
+            catch(ex: any)
+            {
+                callback({
+                    success: false,
+                    error: ex.message
+                } as BaseResponseDTO);
+            }
         });
         socket.on(SOCKET_GAME_EVENTS.SELECT_MAIN_CARD, (trumpColor: ColorType, friendCard: CardId, callback: (messageToLog: string) => void) => {
             if ( gameRoom.GetGameRoomState() !== GAME_STATE.STARTED) return callback('Game not started');

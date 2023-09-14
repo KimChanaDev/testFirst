@@ -28,15 +28,15 @@ export class GameController extends ExpressRouter
     }
     private GetAllGames(req: Request, res: Response, _next: NextFunction): void
     {
-        const response: GameResponseDTO[] = GamesStoreLogic.getInstance.GetAllNotStartedGamesAsArray().map(game => GameResponseDTO.CreateFromGame(game));
+        const response: GameResponseDTO[] = GamesStoreLogic.getInstance.GetAllNotStartedGamesAsArray().map(gameRoom => GameResponseDTO.CreateFromGame(gameRoom));
 		res.json(response);
 	}
     private async GetGame(req: Request, res: Response, next: NextFunction): Promise<void>
     {
 		const gameId: string = req.params.gameId;
-		const game: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGameById(gameId);
-		if (!game) return next(new ResourceNotFoundError(DB_RESOURCES.GAME, gameId));
-        const response: GameResponseDTO = GameResponseDTO.CreateFromGame(game);
+		const gameRoom: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGameById(gameId);
+		if (!gameRoom) return next(new ResourceNotFoundError(DB_RESOURCES.GAME, gameId));
+        const response: GameResponseDTO = GameResponseDTO.CreateFromGame(gameRoom);
 		res.json(response);
 	}
     private async AddGame(req: Request, res: Response, next: NextFunction): Promise<void>
@@ -55,7 +55,7 @@ export class GameController extends ExpressRouter
 			isPasswordProtected: !!newGameData.password,
 		});
 		const savedGame = await createdGame.save();
-		const game: GameRoomLogic = GameFactoryLogic.CreateGame(
+		const gameRoom: GameRoomLogic = GameFactoryLogic.CreateGame(
 			savedGame.gameType,
 			{ id: owner.id, username: owner.username },
 			savedGame.maxPlayers,
@@ -65,7 +65,7 @@ export class GameController extends ExpressRouter
 			savedGame.id,
 			newGameData.password
 		);
-		GamesStoreLogic.getInstance.AddGame(game);
-		res.json(GameResponseDTO.CreateFromGame(game));
+		GamesStoreLogic.getInstance.AddGame(gameRoom);
+		res.json(GameResponseDTO.CreateFromGame(gameRoom));
     }
 }
