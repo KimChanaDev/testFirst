@@ -24,28 +24,37 @@ export class FriendCardGameHandler extends SocketHandler
         if (!(gameRoom instanceof FriendCardGameRoomLogic)) throw new Error('GameType mismatch');
 		if (!(player instanceof FriendCardPlayerLogic)) throw new Error('PlayerType mismatch');
 
-        socket.on(SOCKET_GAME_EVENTS.START_GAME, (callback: (messageToLog: string) => void) => {
+        socket.on(SOCKET_GAME_EVENTS.START_GAME, (callback: (messageToLog: BaseResponseDTO) => void) => {
 			if (player.id === gameRoom.owner.id)
             {
                 try
                 {
                     gameRoom.Start();
                     this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.START_GAME, gameRoom.id);
+                    callback({
+                        success: true
+                    } as BaseResponseDTO);
                 }
                 catch(ex : any)
                 {
-                    callback(ex?.message);
+                    callback({
+                        success: false,
+                        error: ex?.message
+                    } as BaseResponseDTO);
                 }
             }
             else
             {
-                callback("You are not Host");
+                callback({
+                    success: false,
+                    error: "You are not Host"
+                } as BaseResponseDTO);
             }
 		});
         socket.on(SOCKET_GAME_EVENTS.AUCTION, (auctionPass: boolean, auctionPoint: number, callback: (response: AuctionPointResponseDTO | BaseResponseDTO) => void) => {
-            try
+            if(gameRoom.GetGameRoomState() === GAME_STATE.STARTED && gameRoom.GetCurrentRoundGame().GetRoundState() === GAME_STATE.STARTED)
             {
-                if(gameRoom.GetGameRoomState() === GAME_STATE.STARTED && gameRoom.GetCurrentRoundGame().GetRoundState() === GAME_STATE.STARTED)
+                try
                 {
                     gameRoom.GetCurrentRoundGame().Auction(auctionPass, auctionPoint);
                     const [nextPlayerId, currentAuctionPoint] = gameRoom.GetCurrentRoundGame().GetInfoForAuctionPointResponse();
@@ -60,19 +69,19 @@ export class FriendCardGameHandler extends SocketHandler
                         currentAuctionPoint: currentAuctionPoint
                     } as AuctionPointResponseDTO);
                 }
-                else
+                catch(ex: any)
                 {
                     callback({
                         success: false,
-                        error: "Game not started"
+                        error: ex.message
                     } as BaseResponseDTO);
                 }
             }
-            catch(ex: any)
+            else
             {
                 callback({
                     success: false,
-                    error: ex.message
+                    error: "Game not started"
                 } as BaseResponseDTO);
             }
         });
