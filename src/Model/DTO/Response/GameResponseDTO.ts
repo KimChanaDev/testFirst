@@ -1,5 +1,5 @@
 import { GAME_TYPE } from "../../../Enum/GameType.js";
-import { GameLogic } from "../../../GameLogic/Game/GameLogic.js";
+import { GameRoomLogic } from "../../../GameLogic/Game/GameRoomLogic.js";
 import { UserResponseDTO } from "./UserResponseDTO.js";
 
 export class GameResponseDTO
@@ -14,7 +14,7 @@ export class GameResponseDTO
 		private numPlayersInGame: number
 	) {}
 
-	public static CreateFromGame(game: GameLogic): GameResponseDTO {
+	public static CreateFromGame(game: GameRoomLogic): GameResponseDTO {
 		return new GameResponseDTO(
 			game.gameType,
 			new UserResponseDTO(game.owner.id, game.owner.username),
@@ -22,7 +22,7 @@ export class GameResponseDTO
 			game.roomName,
 			game.isPasswordProtected,
 			game.id,
-			game.numPlayersInGame
+			game.NumPlayersInGame
 		);
 	}
 }

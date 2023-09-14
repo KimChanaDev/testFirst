@@ -13,6 +13,8 @@ export enum SOCKET_GAME_EVENTS
 	TURN_FINISHED = 'turn_finished',
 	UPDATE_ACTIONS = 'update_actions',
 	GAME_FINISHED = 'game_finished',
+	AUCTION = 'auction',
+	SELECT_MAIN_CARD = 'select_main_card'
 }
 export enum BUILD_IN_SOCKET_GAME_EVENTS
 {

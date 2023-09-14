@@ -1,7 +1,7 @@
 import { Namespace, Server, Socket} from 'socket.io';
 import { ExtendedError } from '../../node_modules/socket.io/dist/namespace.js';
 import { GAME_TYPE } from '../Enum/GameType.js';
-import { GameLogic } from '../GameLogic/Game/GameLogic.js';
+import { GameRoomLogic } from '../GameLogic/Game/GameRoomLogic.js';
 import { PlayerLogic } from '../GameLogic/Player/PlayerLogic.js';
 import { GamesStoreLogic } from '../GameLogic/Game/GameStoreLogic.js';
 import { GAME_STATE } from '../Enum/GameState.js';
@@ -25,7 +25,7 @@ export abstract class SocketHandler
 	protected static io: Server;
 	private static isIoSet: boolean = false;
     protected namespace: Namespace;
-	protected abstract OnConnection(socket: Socket, game: GameLogic, player: PlayerLogic): void;
+	protected abstract OnConnection(socket: Socket, game: GameRoomLogic, player: PlayerLogic): void;
 
     constructor(io: Server, namespaceName: GAME_TYPE) {
 		if (!SocketHandler.isIoSet) {
@@ -40,7 +40,7 @@ export abstract class SocketHandler
 	}
     private RegisterListeners(): void
 	{
-		type GameAndPlayerType = {game: GameLogic, player: PlayerLogic};
+		type GameAndPlayerType = {game: GameRoomLogic, player: PlayerLogic};
 		this.namespace.on(BUILD_IN_SOCKET_GAME_EVENTS.CONNECTION, (socket: Socket) => {
 			const gameAndPlayer: GameAndPlayerType | undefined = this.RegisterBaseListeners(socket);
 			if (!gameAndPlayer) return;
@@ -48,9 +48,9 @@ export abstract class SocketHandler
 		});
 	}
 
-	private RegisterBaseListeners(socket: Socket): { game: GameLogic; player: PlayerLogic } | undefined
+	private RegisterBaseListeners(socket: Socket): { game: GameRoomLogic; player: PlayerLogic } | undefined
 	{
-		let gameAndPlayerResult: { game: GameLogic; player: PlayerLogic } | undefined;
+		let gameAndPlayerResult: { game: GameRoomLogic; player: PlayerLogic } | undefined;
 		if (!socket?.handshake?.query?.gameId || !socket.middlewareData.jwt?.sub)
 		{
 			console.log("Error connection detail not collect!");
@@ -63,8 +63,8 @@ export abstract class SocketHandler
 			const gameId: string = socket.handshake.query.gameId as string;
 			const userId: string = socket.middlewareData.jwt?.sub as string;
 
-			const game: GameLogic | undefined = GamesStoreLogic.getInstance.GetGame(gameId) as GameLogic;
-			const player: PlayerLogic | undefined = game?.GetPlayer(userId) as PlayerLogic;
+			const game: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGame(gameId) as GameRoomLogic;
+			const player: PlayerLogic | undefined = game?.GetPlayerById(userId) as PlayerLogic;
 			if (!game || !player)
 			{
 				gameAndPlayerResult = undefined;
@@ -172,7 +172,7 @@ export abstract class SocketHandler
 				else
 				{
 					SocketHandler.connectedUsers.add(userId);
-					const newPlayer = PlayerFactoryLogic.CreatePlayerObject(
+					const newPlayer: PlayerLogic = PlayerFactoryLogic.CreatePlayerObject(
 						game.gameType,
 						user.id,
 						user.username,
@@ -188,7 +188,6 @@ export abstract class SocketHandler
 					});
 					nextFunction = next();
 				}
-
 			} 
 			catch (error) 
 			{

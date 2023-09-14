@@ -3,7 +3,7 @@ import { JwtAuthMiddleware } from "../Middleware/JwtAuthMiddleware.js";
 import { ExpressRouter } from "./ExpressRouter.js";
 import { GamesStoreLogic } from "../GameLogic/Game/GameStoreLogic.js";
 import { GameResponseDTO } from "../Model/DTO/Response/GameResponseDTO.js";
-import { GameLogic } from "../GameLogic/Game/GameLogic.js";
+import { GameRoomLogic } from "../GameLogic/Game/GameRoomLogic.js";
 import { ValidationMiddleware } from "../Middleware/ValidationMiddleware.js";
 import { CreateGameDTO } from "../Model/DTO/CreateGameDTO.js";
 import { DB_RESOURCES } from "../Enum/DatabaseResource.js";
@@ -34,7 +34,7 @@ export class GameController extends ExpressRouter
     private async GetGame(req: Request, res: Response, next: NextFunction): Promise<void>
     {
 		const gameId: string = req.params.gameId;
-		const game: GameLogic | undefined = GamesStoreLogic.getInstance.GetGame(gameId);
+		const game: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGame(gameId);
 		if (!game) return next(new ResourceNotFoundError(DB_RESOURCES.GAME, gameId));
         const response: GameResponseDTO = GameResponseDTO.CreateFromGame(game);
 		res.json(response);
@@ -55,7 +55,7 @@ export class GameController extends ExpressRouter
 			isPasswordProtected: !!newGameData.password,
 		});
 		const savedGame = await createdGame.save();
-		const game: GameLogic = GameFactoryLogic.CreateGame(
+		const game: GameRoomLogic = GameFactoryLogic.CreateGame(
 			savedGame.gameType,
 			{ id: owner.id, username: owner.username },
 			savedGame.maxPlayers,

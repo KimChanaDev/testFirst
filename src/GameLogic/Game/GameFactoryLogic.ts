@@ -1,7 +1,7 @@
 import { GAME_TYPE } from "../../Enum/GameType.js";
 import { BadRequestError } from "../../Error/ErrorException.js";
-import { GameLogic } from "./GameLogic.js";
-import { FriendCardGameLogic } from "./FriendCardGameLogic.js";
+import { GameRoomLogic } from "./GameRoomLogic.js";
+import { FriendCardGameRoomLogic } from "./FriendCardGameRoomLogic.js";
 
 export class GameFactoryLogic
 {
@@ -14,10 +14,10 @@ export class GameFactoryLogic
 		createdAt: Date,
 		id: string,
 		password?: string
-	): GameLogic {
+	): GameRoomLogic {
 		if (gameType === GAME_TYPE.FRIENDCARDGAME)
         {
-			return new FriendCardGameLogic(
+			return new FriendCardGameRoomLogic(
 				gameType,
 				owner,
 				maxPlayers,
