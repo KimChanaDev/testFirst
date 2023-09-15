@@ -15,6 +15,13 @@ export class DeckLogic
         this.inDeck = [];
 	}
 
+    public Empty(): void { this.inDeck = []; }
+    public HasCard(cardId: CardId): boolean { return this.inDeck.indexOf(cardId) >= 0; }
+    public Remove(cardId: CardId): void { this.inDeck.splice(this.inDeck.indexOf(cardId), 1); }
+	private IsCardValidForDeck(cardId: CardId): boolean { return this.validShapes.includes(cardId[0] as ShapeType) && this.validColors.includes(cardId[1] as ColorType); }
+	public GetNumOfCardsInDeck(): number { return this.inDeck.length; }
+	public GetInDeck(): CardId[] { return this.inDeck; }
+	public GetLastInDeck(): CardId { return this.inDeck[this.inDeck.length - 1]; }
     public Full(): void
     {
 		this.inDeck = [];
@@ -26,22 +33,6 @@ export class DeckLogic
             this.inDeck.push(...cards);
         }
 	}
-
-    public Empty(): void
-    {
-		this.inDeck = [];
-	}
-
-    public HasCard(cardId: CardId): boolean
-    {
-		return this.inDeck.indexOf(cardId) >= 0;
-	}
-
-    public Remove(cardId: CardId): void
-    {
-		this.inDeck.splice(this.inDeck.indexOf(cardId), 1);
-	}
-
     public Add(toAdd: CardId | CardId[]): void
     {
 		if (Array.isArray(toAdd))
@@ -59,26 +50,6 @@ export class DeckLogic
                 throw new Error('Card not valid for deck');
 		}
 	}
-    private IsCardValidForDeck(cardId: CardId): boolean
-    {
-		return this.validShapes.includes(cardId[0] as ShapeType) && this.validColors.includes(cardId[1] as ColorType);
-	}
-
-    public GetNumOfCardsInDeck(): number
-    {
-		return this.inDeck.length;
-	}
-
-    public GetInDeck(): CardId[]
-    {
-		return this.inDeck;
-	}
-
-    public GetLastInDeck(): CardId
-    {
-		return this.inDeck[this.inDeck.length - 1];
-	}
-
     public PopNumRandomCards(numCard: number): CardId[]
     {
 		let cardIds: CardId[] = [];

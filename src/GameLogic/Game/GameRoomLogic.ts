@@ -6,7 +6,7 @@ import { PlayerLogic } from "../Player/PlayerLogic.js";
 
 export abstract class GameRoomLogic
 {
-    private gameState: number = GAME_STATE.NOT_STARTED;
+    private gameState: GAME_STATE = GAME_STATE.NOT_STARTED;
 	protected abstract winner?: PlayerLogic;
     protected abstract playersInGame: Map<string, PlayerLogic>;
 	private removeFromGameStoreTimeout?: NodeJS.Timeout;
@@ -29,7 +29,6 @@ export abstract class GameRoomLogic
 	}
     public GetPlayerById(id: string): PlayerLogic | undefined { return this.playersInGame.get(id); }
     public GetAllPlayersDTO(): PlayerDTO[] { return Array.from(this.playersInGame.values()).map((player) => PlayerDTO.CreateFromPlayer(player)); }
-
     public AreAllPlayersReady(): boolean { return Array.from(this.playersInGame.values()).every((player) => player.GetIsReady()); }
     public NumPlayersInGame(): number { return this.playersInGame.size; }
     public NumConnectedPlayersInGame(): number { return Array.from(this.playersInGame.values()).filter((player) => !player.GetIsDisconnected()).length; }
@@ -38,7 +37,7 @@ export abstract class GameRoomLogic
     public SetFinishState(): void { this.gameState = GAME_STATE.FINISHED; }
     public GetGameRoomState(): number { return this.gameState }
     public GetWinner(): PlayerLogic | undefined { return this.winner;}
-    public SetWinner(player: PlayerLogic) { this.winner = player;}
+    public SetWinner(player: PlayerLogic): void { this.winner = player;}
     public DisconnectPlayer(player: PlayerLogic): void
     {
         if (this.gameState === GAME_STATE.NOT_STARTED) this.playersInGame.delete(player.id);

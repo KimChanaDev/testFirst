@@ -12,10 +12,10 @@ export class FriendCardGameRoomLogic extends GameRoomLogic
 {
     protected winner?: FriendCardPlayerLogic | undefined;
     protected playersInGame = new Map<string, FriendCardPlayerLogic>();
-    private roundsInGame : FriendCardGameRoundLogic[] = [];
+    private roundsInGame: FriendCardGameRoundLogic[] = [];
     private currentRoundNumber: number = 0;
-    private readonly totalNumRound = 4;
-    public Start() : void
+    private readonly totalNumberRound: number = 4;
+    public Start(): void
     {
         if (this.NumPlayersInGame() < 4) throw Error("Minimum 4 players required");
         if (!this.AreAllPlayersReady()) throw Error('Not all players ready');
@@ -30,12 +30,12 @@ export class FriendCardGameRoomLogic extends GameRoomLogic
     }
     public GetCurrentRoundGame(): FriendCardGameRoundLogic { return this.roundsInGame[this.currentRoundNumber]; }
     public GetAllPlayerAsArray(): FriendCardPlayerLogic[] { return Array.from(this.playersInGame.values()); }
-    public NextRound() : void
+    public NextRound(): void
     {
         this.currentRoundNumber++;
-        if (this.currentRoundNumber >= this.totalNumRound) this.currentRoundNumber = 0;
+        if (this.currentRoundNumber >= this.totalNumberRound) this.currentRoundNumber = 0;
     }
-    public DisconnectPlayer(player: FriendCardPlayerLogic) : void
+    public DisconnectPlayer(player: FriendCardPlayerLogic): void
     {
         super.DisconnectPlayer(player);
 
