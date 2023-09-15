@@ -24,7 +24,7 @@ export class FriendCardGameHandler extends SocketHandler
         if (!(gameRoom instanceof FriendCardGameRoomLogic)) throw new Error('GameType mismatch');
 		if (!(player instanceof FriendCardPlayerLogic)) throw new Error('PlayerType mismatch');
 
-        socket.on(SOCKET_GAME_EVENTS.START_GAME, (callback: (messageToLog: BaseResponseDTO) => void) => {
+        socket.on(SOCKET_GAME_EVENTS.START_GAME, (callback: (response: BaseResponseDTO) => void) => {
 			if (player.id === gameRoom.owner.id)
             {
                 try
@@ -57,16 +57,20 @@ export class FriendCardGameHandler extends SocketHandler
                 try
                 {
                     gameRoom.GetCurrentRoundGame().Auction(auctionPass, auctionPoint);
-                    const [nextPlayerId, currentAuctionPoint] = gameRoom.GetCurrentRoundGame().GetInfoForAuctionPointResponse();
+                    const [nextPlayerId, highestAuctionPlayerId, currentAuctionPoint, gameplayState] = gameRoom.GetCurrentRoundGame().GetInfoForAuctionPointResponse();
                     const auctionPointDTO: AuctionPointDTO = {
                         nextPlayerId: nextPlayerId,
-                        currentAuctionPoint: currentAuctionPoint
+                        currentHighestAuctionPlayerId: highestAuctionPlayerId,
+                        currentAuctionPoint: currentAuctionPoint,
+                        gameplayState: gameplayState
                     };
                     socket.to(gameRoom.id).emit(SOCKET_GAME_EVENTS.AUCTION, auctionPointDTO);
                     callback({
                         success: true,
                         nextPlayerId: nextPlayerId,
-                        currentAuctionPoint: currentAuctionPoint
+                        currentHighestAuctionPlayerId: highestAuctionPlayerId,
+                        currentAuctionPoint: currentAuctionPoint,
+                        gameplayState: gameplayState
                     } as AuctionPointResponseDTO);
                 }
                 catch(ex: any)
@@ -86,8 +90,18 @@ export class FriendCardGameHandler extends SocketHandler
             }
         });
         socket.on(SOCKET_GAME_EVENTS.SELECT_MAIN_CARD, (trumpColor: ColorType, friendCard: CardId, callback: (messageToLog: string) => void) => {
-            if ( gameRoom.GetGameRoomState() !== GAME_STATE.STARTED) return callback('Game not started');
-            gameRoom.GetCurrentRoundGame()?.SetTrumpAndFriend(trumpColor, friendCard);
+            if(gameRoom.GetGameRoomState() === GAME_STATE.STARTED && gameRoom.GetCurrentRoundGame().GetRoundState() === GAME_STATE.STARTED)
+            {
+                try
+                {
+                    gameRoom.GetCurrentRoundGame().SetTrumpAndFriend(trumpColor, friendCard);
+                }
+                catch
+                {
+
+                }
+            }
+            else return callback('Game not started');
         });
         socket.on(SOCKET_GAME_EVENTS.GET_GAME_STATE, (callback: (friendCardGameStateForPlayer: FriendCardGameStateForPlayerDTO) => void) => {
 				callback(FriendCardGameStateForPlayerDTO.CreateFromFriendCardGameAndPlayer(gameRoom, player));

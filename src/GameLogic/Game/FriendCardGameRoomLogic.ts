@@ -20,8 +20,8 @@ export class FriendCardGameRoomLogic extends GameRoomLogic
         if (this.NumPlayersInGame() < 4) throw Error("Minimum 4 players required");
         if (!this.AreAllPlayersReady()) throw Error('Not all players ready');
         this.InitRoundInGame();
-        this.GetCurrentRoundGame().InitializePlayerAndCardHand(this.GetAllPlayerAsArray());
         super.SetStartState();
+        this.GetCurrentRoundGame().StartRound(this.GetAllPlayerAsArray());
     }
     private InitRoundInGame(): void
     {

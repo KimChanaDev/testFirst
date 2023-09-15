@@ -14,32 +14,35 @@ export class FriendCardGameRoundLogic
     private trumpColor: ColorType = null!;
     private friendCard: CardId = null!;
     private auctionPoint: number = 50;
-    private highestAuctionPlayer: FriendCardPlayerLogic = null!;
+    private highestAuctionPlayerNumber: number = null!;
     private playersInOrder: FriendCardPlayerLogic[] = [];
     private currentPlayerNumber: number = 0;
     private leaderPlayerNumber: number = 0;
     private playersTeamOne = new Map<string, FriendCardPlayerLogic>();
     private playersTeamTwo = new Map<string, FriendCardPlayerLogic>();
     private stackPass: number = 0;
+    private gameplayState: GAME_STATE = GAME_STATE.NOT_STARTED;
     constructor() {};
     public PlayCard(cardId: CardId): CardId
     {
         return cardId;
     }
     public GetCurrentPlayer(): FriendCardPlayerLogic { return this.playersInOrder[this.currentPlayerNumber]; }
+    public GetHighestAuctionPlayer(): FriendCardPlayerLogic { return this.playersInOrder[this.highestAuctionPlayerNumber]; }
     public IsPlayerTurn(playerId: string) : boolean { return this.GetCurrentPlayer()?.id === playerId; }
-    public StartRound(): void
+    public StartPlayGame(): void
     {
-        this.SetStartRoundState();
+        this.gameplayState = GAME_STATE.STARTED;
 
     }
-    public InitializePlayerAndCardHand(players : FriendCardPlayerLogic[]): void
+    public StartRound(players : FriendCardPlayerLogic[]): void
     {
         if (players.length === 4)
         {
             this.playersInOrder = ShuffleArray(Array.from(players.values()));
             this.currentPlayerNumber = 0;
             this.PrepareCard();
+            this.SetStartRoundState();
         }
         else
         {
@@ -77,7 +80,7 @@ export class FriendCardGameRoundLogic
         {
             this.IncreaseStackPass();
             this.NextPlayer();
-            if(this.stackPass === 3) this.StartRound();
+            if(this.stackPass === 3) this.StartPlayGame();
         }
         else
         {
@@ -85,10 +88,10 @@ export class FriendCardGameRoundLogic
             if (this.auctionPoint < newAuctionPoint)
             {
                 this.auctionPoint = newAuctionPoint;
-                this.highestAuctionPlayer = this.GetCurrentPlayer();
+                this.highestAuctionPlayerNumber = this.currentPlayerNumber;
                 this.ClearStackPass();
                 this.NextPlayer();
-                if (this.auctionPoint === 100) this.StartRound()
+                if (this.auctionPoint === 100) this.StartPlayGame()
             }
             else
             {
@@ -96,10 +99,10 @@ export class FriendCardGameRoundLogic
             }
         }
     }
-    public GetInfoForAuctionPointResponse(): [string, number] { return [this.GetCurrentPlayer().id, this.auctionPoint]; }
+    public GetInfoForAuctionPointResponse(): [string, string, number, number] { return [this.GetCurrentPlayer().id, this.GetHighestAuctionPlayer().id, this.auctionPoint, this.gameplayState]; }
     public SetTrumpAndFriend(trumpColor: ColorType, friendCard: CardId): void
     {
-        if (this.GetCurrentPlayer().id === this.highestAuctionPlayer.id)
+        if (this.GetCurrentPlayer().id === this.GetHighestAuctionPlayer().id)
         {
             if (!this.GetCurrentPlayer().GetHandCard().HasCard(friendCard))
             {
