@@ -7,4 +7,4 @@ export type AuctionPointDTO = {
     gameplayState: GAME_STATE
 };
 
-export type AuctionPointResponseDTO = BaseResponseDTO & {}
+export type AuctionPointResponseDTO = BaseResponseDTO & AuctionPointDTO;

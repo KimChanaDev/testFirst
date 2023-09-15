@@ -109,6 +109,10 @@ export class FriendCardGameRoundLogic
                 this.trumpColor = trumpColor
                 this.friendCard = friendCard;
             }
+            else
+            {
+                throw new Error("You have this card in your hand");
+            }
         }
     }
     public SetStartRoundState(): void { this.roundState = GAME_STATE.STARTED }

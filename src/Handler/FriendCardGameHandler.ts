@@ -13,6 +13,7 @@ import { TurnFinishedDTO } from "../Model/DTO/TurnFinishedDTO.js";
 import { TurnFinishedResponseDTO } from "../Model/DTO/Response/TurnFinishedResponseDTO.js";
 import { GAME_STATE } from "../Enum/GameState.js";
 import { AuctionPointDTO, AuctionPointResponseDTO } from "../Model/DTO/AuctionPointDTO.js";
+import { TrumpAndFriendDTO } from "../Model/DTO/TrumpAndFriendDTO.js";
 
 export class FriendCardGameHandler extends SocketHandler
 {
@@ -89,19 +90,44 @@ export class FriendCardGameHandler extends SocketHandler
                 } as BaseResponseDTO);
             }
         });
-        socket.on(SOCKET_GAME_EVENTS.SELECT_MAIN_CARD, (trumpColor: ColorType, friendCard: CardId, callback: (messageToLog: string) => void) => {
-            if(gameRoom.GetGameRoomState() === GAME_STATE.STARTED && gameRoom.GetCurrentRoundGame().GetRoundState() === GAME_STATE.STARTED)
+        socket.on(SOCKET_GAME_EVENTS.SELECT_MAIN_CARD, (trumpColor: ColorType, friendCard: CardId, callback: (response: TrumpAndFriendDTO | BaseResponseDTO) => void) => {
+            let errorMessage: string = "";
+            if(gameRoom.GetGameRoomState() !== GAME_STATE.STARTED || gameRoom.GetCurrentRoundGame().GetRoundState() !== GAME_STATE.STARTED)
+            {
+                errorMessage = "Game not started";
+            }
+            else if(gameRoom.GetCurrentRoundGame().GetHighestAuctionPlayer().id !== player.id)
+            {
+                errorMessage = "You are not the winning bidder";   
+            }
+            else
             {
                 try
                 {
                     gameRoom.GetCurrentRoundGame().SetTrumpAndFriend(trumpColor, friendCard);
+                    const trumpAndFriendDTO :TrumpAndFriendDTO = {
+                        trumpColor: trumpColor,
+                        friendCard: friendCard
+                    };
+                    socket.to(gameRoom.id).emit(SOCKET_GAME_EVENTS.SELECT_MAIN_CARD, trumpAndFriendDTO);
+                    return callback({
+                        success: true,
+                        trumpColor: trumpColor,
+                        friendCard: friendCard
+                    } as TrumpAndFriendDTO);
                 }
-                catch
+                catch(error: any)
                 {
-
+                    errorMessage = error?.message
                 }
             }
-            else return callback('Game not started');
+            if(errorMessage !== "")
+            {
+                return callback({
+                        success: false,
+                        error: errorMessage
+                } as BaseResponseDTO);
+            }
         });
         socket.on(SOCKET_GAME_EVENTS.GET_GAME_STATE, (callback: (friendCardGameStateForPlayer: FriendCardGameStateForPlayerDTO) => void) => {
 				callback(FriendCardGameStateForPlayerDTO.CreateFromFriendCardGameAndPlayer(gameRoom, player));
