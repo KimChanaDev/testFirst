@@ -32,24 +32,16 @@ export class FriendCardGameHandler extends SocketHandler
                 {
                     gameRoom.Start();
                     this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.START_GAME, gameRoom.id);
-                    callback({
-                        success: true
-                    } as BaseResponseDTO);
+                    callback({ success: true } as BaseResponseDTO);
                 }
                 catch(ex : any)
                 {
-                    callback({
-                        success: false,
-                        error: ex?.message
-                    } as BaseResponseDTO);
+                    callback({ success: false, error: ex?.message } as BaseResponseDTO);
                 }
             }
             else
             {
-                callback({
-                    success: false,
-                    error: "You are not Host"
-                } as BaseResponseDTO);
+                callback({ success: false, error: "You are not Host" } as BaseResponseDTO);
             }
 		});
         socket.on(SOCKET_GAME_EVENTS.AUCTION, (auctionPass: boolean, auctionPoint: number, callback: (response: AuctionPointResponseDTO | BaseResponseDTO) => void) => {
@@ -76,30 +68,20 @@ export class FriendCardGameHandler extends SocketHandler
                 }
                 catch(ex: any)
                 {
-                    callback({
-                        success: false,
-                        error: ex.message
-                    } as BaseResponseDTO);
+                    callback({ success: false, error: ex.message } as BaseResponseDTO);
                 }
             }
             else
             {
-                callback({
-                    success: false,
-                    error: "Game not started"
-                } as BaseResponseDTO);
+                callback({ success: false, error: "Game not started" } as BaseResponseDTO);
             }
         });
         socket.on(SOCKET_GAME_EVENTS.SELECT_MAIN_CARD, (trumpColor: ColorType, friendCard: CardId, callback: (response: TrumpAndFriendDTO | BaseResponseDTO) => void) => {
             let errorMessage: string = "";
             if(gameRoom.GetGameRoomState() !== GAME_STATE.STARTED || gameRoom.GetCurrentRoundGame().GetRoundState() !== GAME_STATE.STARTED)
-            {
                 errorMessage = "Game not started";
-            }
             else if(gameRoom.GetCurrentRoundGame().GetHighestAuctionPlayer().id !== player.id)
-            {
                 errorMessage = "You are not the winning bidder";   
-            }
             else
             {
                 try
@@ -122,76 +104,44 @@ export class FriendCardGameHandler extends SocketHandler
                 }
             }
             if(errorMessage !== "")
-            {
-                return callback({
-                        success: false,
-                        error: errorMessage
-                } as BaseResponseDTO);
-            }
+                return callback({ success: false, error: errorMessage } as BaseResponseDTO);
         });
         socket.on(SOCKET_GAME_EVENTS.GET_GAME_STATE, (callback: (friendCardGameStateForPlayer: FriendCardGameStateForPlayerDTO) => void) => {
-				callback(FriendCardGameStateForPlayerDTO.CreateFromFriendCardGameAndPlayer(gameRoom, player));
-			}
-		);
-        
+            callback(FriendCardGameStateForPlayerDTO.CreateFromFriendCardGameAndPlayer(gameRoom, player));
+		});
         socket.on(SOCKET_GAME_EVENTS.CARD_PLAYED,(cardId: CardId, callback: (response: CardPlayedResponseDTO | BaseResponseDTO) => void) => {
-                if (!gameRoom.GetCurrentRoundGame()?.CanPlayerPlayCard(player, cardId))
+            if (!gameRoom.GetCurrentRoundGame().CanPlayerPlayCard(player, cardId))
+            {
+                callback({
+                    success: false,
+                    error: 'Cannot play that card' 
+                } as BaseResponseDTO);
+            }
+            else
+            {
+                try
+                {
+                    player.GetHandCard().Remove(cardId);
+                    const playedCard: CardId = gameRoom.GetCurrentRoundGame().PlayCard(cardId, player.id);
+                    const cardPlayedDTO: CardPlayedDTO = {
+                        playerId: player.id,
+                        cardId: playedCard
+                    };
+                    socket.to(gameRoom.id).emit(SOCKET_GAME_EVENTS.CARD_PLAYED, cardPlayedDTO);
+                    callback({
+                        success: true,
+                        actions: gameRoom.GetCurrentRoundGame().GetActionsDTOForPlayer(player),
+                        cardId: playedCard
+                    } as CardPlayedResponseDTO);
+                }
+                catch(error: any)
                 {
                     callback({
                         success: false,
-                        error: 'Cannot play that card' 
-                    } as BaseResponseDTO);
-                } 
-                else
-                {
-                    player.GetHandCard().Remove(cardId);
-                    const playedCard: CardId | undefined = gameRoom.GetCurrentRoundGame()?.PlayCard(cardId);
-                    if (playedCard)
-                    {
-                        const cardPlayedDTO: CardPlayedDTO = {
-                            playerId: player.id,
-                            cardId: playedCard
-                        };
-                        socket.to(gameRoom.id).emit(SOCKET_GAME_EVENTS.CARD_PLAYED, cardPlayedDTO);
-                        callback({
-                            success: true,
-                            actions: gameRoom.GetCurrentRoundGame()?.GetActionsDTOForPlayer(player),
-                            cardId: playedCard
-                        } as CardPlayedResponseDTO);
-                    }
-                }
-                
-		    }
-        );
-        
-        socket.on(SOCKET_GAME_EVENTS.TURN_FINISHED,(callback: (response: TurnFinishedResponseDTO | BaseResponseDTO) => void) => {
-                if (!gameRoom.GetCurrentRoundGame()?.CanPlayerFinishTurn(player))
-                {
-                    callback({ 
-                        success: false, 
-                        error: 'Cannot finish turn' 
+                        error: error?.message 
                     } as BaseResponseDTO);
                 }
-                else
-                {
-                    gameRoom.GetCurrentRoundGame()?.FinishTurn();
-                    const currentPlayer: FriendCardPlayerLogic | undefined = gameRoom.GetCurrentRoundGame()?.GetCurrentPlayer();
-                    if(currentPlayer){
-                        const turnFinishedDTO: TurnFinishedDTO = { playerId: currentPlayer.id };
-                        socket.to(gameRoom.id).emit(SOCKET_GAME_EVENTS.TURN_FINISHED, turnFinishedDTO);
-                        // if (currentPlayer.id !== player.id)
-                        // {
-                        //     socket.to(currentPlayer.socketId).emit(SOCKET_GAME_EVENTS.UPDATE_ACTIONS, game.GetActionsDTOForPlayer(currentPlayer));
-                        // }
-                        callback({
-                            success: true,
-                            playerId: currentPlayer.id,
-                            actions: gameRoom.GetCurrentRoundGame()?.GetActionsDTOForPlayer(player)
-                        } as TurnFinishedResponseDTO);
-                    }
-                }
-                
             }
-        );
+        });
     }
 }

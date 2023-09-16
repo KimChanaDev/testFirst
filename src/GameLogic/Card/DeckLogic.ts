@@ -1,5 +1,6 @@
 import { CardId, ColorType, Colors, ShapeType, Shapes } from "../../Enum/CardConstant.js";
 import { RandomArrayElement } from '../Utils/Tools.js';
+import { CardLogic } from "./CardLogic.js";
 
 export class DeckLogic
 {
@@ -16,6 +17,7 @@ export class DeckLogic
 	}
 
     public Empty(): void { this.inDeck = []; }
+    public HasColor(color: ColorType): boolean | undefined { return this.inDeck.some(card => CardLogic.IsColor(card, color))}
     public HasCard(cardId: CardId): boolean { return this.inDeck.indexOf(cardId) >= 0; }
     public Remove(cardId: CardId): void { this.inDeck.splice(this.inDeck.indexOf(cardId), 1); }
 	private IsCardValidForDeck(cardId: CardId): boolean { return this.validShapes.includes(cardId[0] as ShapeType) && this.validColors.includes(cardId[1] as ColorType); }

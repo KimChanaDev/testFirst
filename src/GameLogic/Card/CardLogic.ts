@@ -8,4 +8,5 @@ export abstract class CardLogic
 	public static IsShapeGreaterOrSameAs(card1: CardId, card2: CardId): boolean { return this.IsShapeSameAs(card1, card2) || this.IsShapeGreaterThan(card1, card2); }
 	public static IsColor(card: CardId, color: ColorType): boolean { return card[1] === color; }
 	public static IsShape(card: CardId, shape: ShapeType): boolean { return card[0] === shape; }
+	public static GetColor(card: CardId): ColorType { return card[1] as ColorType; }
 }
