@@ -1,14 +1,14 @@
 import { GAME_STATE } from "../../Enum/GameState.js";
 import { GAME_TYPE } from "../../Enum/GameType.js";
 import { PlayerDTO } from "../../Model/DTO/PlayerDTO.js";
-import { GamesStoreLogic } from "./GameStoreLogic.js";
-import { PlayerLogic } from "../Player/Player.js";
+import { GamesStore } from "./GameStore.js";
+import { Player } from "../Player/Player.js";
 
-export abstract class GameRoomLogic
+export abstract class GameRoom
 {
     private gameState: GAME_STATE = GAME_STATE.NOT_STARTED;
-	protected abstract winner?: PlayerLogic;
-    protected abstract playersInGame: Map<string, PlayerLogic>;
+	protected abstract winner?: Player;
+    protected abstract playersInGame: Map<string, Player>;
 	private removeFromGameStoreTimeout?: NodeJS.Timeout;
     
     constructor(
@@ -22,12 +22,12 @@ export abstract class GameRoomLogic
 		public readonly password?: string)
     {
     }
-    public AddPlayer(player: PlayerLogic): void
+    public AddPlayer(player: Player): void
     {
 		this.playersInGame.set(player.id, player);
 		this.StopRemoveFromGameStoreTimeout();
 	}
-    public GetPlayerById(id: string): PlayerLogic | undefined { return this.playersInGame.get(id); }
+    public GetPlayerById(id: string): Player | undefined { return this.playersInGame.get(id); }
     public GetAllPlayersDTO(): PlayerDTO[] { return Array.from(this.playersInGame.values()).map((player) => PlayerDTO.CreateFromPlayer(player)); }
     public AreAllPlayersReady(): boolean { return Array.from(this.playersInGame.values()).every((player) => player.GetIsReady()); }
     public NumPlayersInGame(): number { return this.playersInGame.size; }
@@ -36,9 +36,9 @@ export abstract class GameRoomLogic
     public SetStartState(): void { this.gameState = GAME_STATE.STARTED; }
     public SetFinishState(): void { this.gameState = GAME_STATE.FINISHED; }
     public GetGameRoomState(): number { return this.gameState }
-    public GetWinner(): PlayerLogic | undefined { return this.winner;}
-    public SetWinner(player: PlayerLogic): void { this.winner = player;}
-    public DisconnectPlayer(player: PlayerLogic): void
+    public GetWinner(): Player | undefined { return this.winner;}
+    public SetWinner(player: Player): void { this.winner = player;}
+    public DisconnectPlayer(player: Player): void
     {
         if (this.gameState === GAME_STATE.NOT_STARTED) this.playersInGame.delete(player.id);
         else player.SetDisconnected(true);
@@ -47,7 +47,7 @@ export abstract class GameRoomLogic
     private StartRemoveFromGameStoreTimeout(): void
     {
         this.removeFromGameStoreTimeout = setTimeout(() => {
-            GamesStoreLogic.getInstance.DeleteGameById(this.id);
+            GamesStore.getInstance.DeleteGameById(this.id);
         }, 3 * 60000);
     }
     private StopRemoveFromGameStoreTimeout(): void 

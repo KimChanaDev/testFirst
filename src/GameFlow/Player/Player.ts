@@ -1,4 +1,4 @@
-export abstract class PlayerLogic
+export abstract class Player
 {
 	private isReady: boolean = false;
 	private isDisconnected: boolean = false;

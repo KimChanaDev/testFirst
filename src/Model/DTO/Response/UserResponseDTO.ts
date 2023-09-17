@@ -1,4 +1,4 @@
-import { PlayerLogic } from "../../../GameLogic/Player/Player.js";
+import { Player } from "../../../GameFlow/Player/Player.js";
 import { Document, Types } from 'mongoose';
 import { UserDocument } from "../../Entity/UserEntity.js";
 export class UserResponseDTO
@@ -14,7 +14,7 @@ export class UserResponseDTO
 		return new UserResponseDTO(savedUser.id, savedUser.username);
 	}
 
-    public static CreateFromPlayer(player: PlayerLogic): UserResponseDTO
+    public static CreateFromPlayer(player: Player): UserResponseDTO
     {
 		return new UserResponseDTO(player.id, player.username);
 	}

@@ -1,6 +1,6 @@
 import { CardId } from "../../Enum/CardConstant.js";
-import { FriendCardGameRoomLogic } from "../../GameLogic/Game/FriendCardGameRoomLogic.js";
-import { FriendCardPlayerLogic } from "../../GameLogic/Player/FriendCardPlayerLogic.js";
+import { FriendCardGameRoom } from "../../GameFlow/Game/FriendCardGameRoom.js";
+import { FriendCardPlayer } from "../../GameFlow/Player/FriendCardPlayer.js";
 import { ActionsDTO } from "./ActionsDTO.js";
 import { OtherFriendCardGamePlayerDTO } from "./OtherFriendCardGamePlayerDTO.js";
 import { ThisFriendCardGamePlayerDTO } from "./ThisFriendCardGamePlayerDTO.js";
@@ -13,13 +13,13 @@ export class FriendCardGameStateForPlayerDTO{
 		private thisPlayerActions: ActionsDTO,
 	) {}
 
-	public static CreateFromFriendCardGameAndPlayer(gameRoom: FriendCardGameRoomLogic, player: FriendCardPlayerLogic): FriendCardGameStateForPlayerDTO
+	public static CreateFromFriendCardGameAndPlayer(gameRoom: FriendCardGameRoom, player: FriendCardPlayer): FriendCardGameStateForPlayerDTO
     {
 		return new FriendCardGameStateForPlayerDTO(
 			gameRoom.GetCurrentRoundGame()?.GetCurrentPlayer().id,
 			ThisFriendCardGamePlayerDTO.CreateFromFriendCardGamePlayer(player),
-			gameRoom.GetAllPlayerAsArray().filter((p: FriendCardPlayerLogic) => !p.GetIsDisconnected())
-				.map((p: FriendCardPlayerLogic) => OtherFriendCardGamePlayerDTO.CreateFromFriendCardGamePlayer(p)),
+			gameRoom.GetAllPlayerAsArray().filter((p: FriendCardPlayer) => !p.GetIsDisconnected())
+				.map((p: FriendCardPlayer) => OtherFriendCardGamePlayerDTO.CreateFromFriendCardGamePlayer(p)),
 			gameRoom.GetCurrentRoundGame().GetActionsDTOForPlayer(player),
 		);
 	}

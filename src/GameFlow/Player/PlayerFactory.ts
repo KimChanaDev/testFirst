@@ -1,9 +1,9 @@
 import { GAME_TYPE } from "../../Enum/GameType.js";
 import { BadRequestError } from "../../Error/ErrorException.js";
-import { FriendCardPlayerLogic } from "./FriendCardPlayerLogic.js";
-import { PlayerLogic } from "./Player.js";
+import { FriendCardPlayer } from "./FriendCardPlayer.js";
+import { Player } from "./Player.js";
 
-export class PlayerFactoryLogic
+export class PlayerFactory
 {
 	public static CreatePlayerObject(
 		gameType: GAME_TYPE,
@@ -11,10 +11,10 @@ export class PlayerFactoryLogic
 		username: string,
 		socketId: string,
 		isOwner: boolean
-	): PlayerLogic
+	): Player
     {
         if (gameType === GAME_TYPE.FRIENDCARDGAME) 
-            return new FriendCardPlayerLogic(id, username, socketId, isOwner);
+            return new FriendCardPlayer(id, username, socketId, isOwner);
         throw new BadRequestError();
 	}
 }

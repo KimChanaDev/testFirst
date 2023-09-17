@@ -1,8 +1,8 @@
 import { Server, Socket } from "socket.io";
 import { GAME_TYPE } from "../Enum/GameType.js";
 import { SocketHandler } from './SocketHandler.js';
-import { FriendCardPlayerLogic } from "../GameLogic/Player/FriendCardPlayerLogic.js";
-import { FriendCardGameRoomLogic } from "../GameLogic/Game/FriendCardGameRoomLogic.js";
+import { FriendCardPlayer } from "../GameFlow/Player/FriendCardPlayer.js";
+import { FriendCardGameRoom } from "../GameFlow/Game/FriendCardGameRoom.js";
 import { SOCKET_GAME_EVENTS } from "../Enum/SocketEvents.js";
 import { FriendCardGameStateForPlayerDTO } from "../Model/DTO/FriendCardGameStateForPlayerDTO.js";
 import { CardId, ColorType } from "../Enum/CardConstant.js";
@@ -18,10 +18,10 @@ export class FriendCardGameHandler extends SocketHandler
     constructor(io: Server) {
 		super(io, GAME_TYPE.FRIENDCARDGAME);
 	}
-    protected OnConnection(socket: Socket, gameRoom: FriendCardGameRoomLogic, player: FriendCardPlayerLogic): void
+    protected OnConnection(socket: Socket, gameRoom: FriendCardGameRoom, player: FriendCardPlayer): void
     {
-        if (!(gameRoom instanceof FriendCardGameRoomLogic)) throw new Error('GameType mismatch');
-		if (!(player instanceof FriendCardPlayerLogic)) throw new Error('PlayerType mismatch');
+        if (!(gameRoom instanceof FriendCardGameRoom)) throw new Error('GameType mismatch');
+		if (!(player instanceof FriendCardPlayer)) throw new Error('PlayerType mismatch');
 
         socket.on(SOCKET_GAME_EVENTS.START_GAME, (callback: (response: BaseResponseDTO) => void) => {
             try

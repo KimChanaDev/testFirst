@@ -1,18 +1,18 @@
 import { CardId, ColorType } from "../../Enum/CardConstant.js";
-import { DeckLogic } from "../Card/DeckLogic.js";
-import { GameRoomLogic } from "./GameRoomLogic.js";
-import { PlayerLogic } from "../Player/Player.js";
-import { ShuffleArray } from "../Utils/Tools.js";
+import { DeckLogic } from "../../GameLogic/Card/DeckLogic.js";
+import { GameRoom } from "./GameRoom.js";
+import { Player } from "../Player/Player.js";
+import { ShuffleArray } from "../../GameLogic/Utils/Tools.js";
 import { ActionsDTO } from "../../Model/DTO/ActionsDTO.js";
-import { FriendCardPlayerLogic } from "../Player/FriendCardPlayerLogic.js";
-import { FriendCardGameRoundLogic } from "./FriendCardGameRoundLogic.js";
+import { FriendCardPlayer } from "../Player/FriendCardPlayer.js";
+import { FriendCardGameRound } from "./FriendCardGameRound.js";
 import { GAME_STATE } from "../../Enum/GameState.js";
 
-export class FriendCardGameRoomLogic extends GameRoomLogic
+export class FriendCardGameRoom extends GameRoom
 {
-    protected winner?: FriendCardPlayerLogic | undefined;
-    protected playersInGame = new Map<string, FriendCardPlayerLogic>();
-    private roundsInGame: FriendCardGameRoundLogic[] = [];
+    protected winner?: FriendCardPlayer | undefined;
+    protected playersInGame = new Map<string, FriendCardPlayer>();
+    private roundsInGame: FriendCardGameRound[] = [];
     private currentRoundNumber: number = 0;
     private readonly totalNumberRound: number = 4;
     public StartProcess(): void
@@ -23,12 +23,12 @@ export class FriendCardGameRoomLogic extends GameRoomLogic
     }
     private InitFourRoundInGame(): void
     {
-        for (let i = 0; i < 4; i++) { this.roundsInGame.push(new FriendCardGameRoundLogic()); }
+        for (let i = 0; i < 4; i++) { this.roundsInGame.push(new FriendCardGameRound()); }
         this.currentRoundNumber = 0;
     }
-    public GetCurrentRoundGame(): FriendCardGameRoundLogic { return this.roundsInGame[this.currentRoundNumber]; }
+    public GetCurrentRoundGame(): FriendCardGameRound { return this.roundsInGame[this.currentRoundNumber]; }
     public IsCurrentRoundGameFinish(): boolean { return this.GetCurrentRoundGame().GetRoundState() === GAME_STATE.FINISHED && this.GetCurrentRoundGame().GetGameplayState() === GAME_STATE.FINISHED; }
-    public GetAllPlayerAsArray(): FriendCardPlayerLogic[] { return Array.from(this.playersInGame.values()); }
+    public GetAllPlayerAsArray(): FriendCardPlayer[] { return Array.from(this.playersInGame.values()); }
     public NextRoundProcess(): void
     {
         this.currentRoundNumber++;
@@ -44,7 +44,7 @@ export class FriendCardGameRoomLogic extends GameRoomLogic
             
         })
     }
-    public DisconnectPlayer(player: FriendCardPlayerLogic): void
+    public DisconnectPlayer(player: FriendCardPlayer): void
     {
         super.DisconnectPlayer(player);
 

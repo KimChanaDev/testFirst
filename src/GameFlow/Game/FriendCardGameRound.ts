@@ -3,13 +3,13 @@ import { GAME_STATE } from "../../Enum/GameState.js";
 import { ActionsDTO } from "../../Model/DTO/ActionsDTO.js";
 import { AuctionPointDTO } from "../../Model/DTO/AuctionPointDTO.js";
 import { TrickCardDetailModel, TrickCardModel } from "../../Model/DTO/TrickCardModel.js";
-import { CardLogic } from "../Card/CardLogic.js";
-import { DeckLogic } from "../Card/DeckLogic.js";
-import { FriendCardLogic } from "../Card/FriendCardLogic.js";
-import { FriendCardPlayerLogic } from "../Player/FriendCardPlayerLogic.js";
-import { ShuffleArray } from "../Utils/Tools.js";
+import { CardLogic } from "../../GameLogic/Card/CardLogic.js";
+import { DeckLogic } from "../../GameLogic/Card/DeckLogic.js";
+import { FriendCardLogic } from "../../GameLogic/Card/FriendCardLogic.js";
+import { FriendCardPlayer } from "../Player/FriendCardPlayer.js";
+import { ShuffleArray } from "../../GameLogic/Utils/Tools.js";
 
-export class FriendCardGameRoundLogic
+export class FriendCardGameRound
 {
     private readonly deck = new DeckLogic();
     private readonly discarded = new DeckLogic();
@@ -18,10 +18,10 @@ export class FriendCardGameRoundLogic
     private trumpColor: ColorType = null!;
     private friendCard: CardId = null!;
     private auctionPoint: number = 50;
-    private playersInOrder: FriendCardPlayerLogic[] = [];
+    private playersInOrder: FriendCardPlayer[] = [];
     private highestAuctionPlayerNumber: number = null!;
-    private winnerAuctionTeam = new Map<string, FriendCardPlayerLogic>();
-    private anotherTeam = new Map<string, FriendCardPlayerLogic>();
+    private winnerAuctionTeam = new Map<string, FriendCardPlayer>();
+    private anotherTeam = new Map<string, FriendCardPlayer>();
     private trickCardMap = new Map<number, TrickCardModel>();
     private winnerTeamTotalPoint: number = 0;
     private anotherTeamTotalPoint: number = 0;
@@ -29,7 +29,7 @@ export class FriendCardGameRoundLogic
     private currentTrickNumber: number = 0;
     private stackPass: number = 0;
     constructor() {};
-    public StartRoundProcess(players : FriendCardPlayerLogic[]): void
+    public StartRoundProcess(players : FriendCardPlayer[]): void
     {
         if (players.length === 4)
         {
@@ -117,17 +117,17 @@ export class FriendCardGameRoundLogic
         this.currentTrickNumber++;
         if(this.currentTrickNumber >= 13) { this.FinishRound() }
     }
-    public GetFriendPlayer(): FriendCardPlayerLogic | undefined { return this.playersInOrder.find(p => {p.GetHandCard().HasCard(this.friendCard)})}
-    public GetCurrentPlayer(): FriendCardPlayerLogic { return this.playersInOrder[this.currentPlayerNumber]; }
-    public GetHighestAuctionPlayer(): FriendCardPlayerLogic { return this.playersInOrder[this.highestAuctionPlayerNumber]; }
+    public GetFriendPlayer(): FriendCardPlayer | undefined { return this.playersInOrder.find(p => {p.GetHandCard().HasCard(this.friendCard)})}
+    public GetCurrentPlayer(): FriendCardPlayer { return this.playersInOrder[this.currentPlayerNumber]; }
+    public GetHighestAuctionPlayer(): FriendCardPlayer { return this.playersInOrder[this.highestAuctionPlayerNumber]; }
     public IsPlayerTurn(playerId: string) : boolean { return this.GetCurrentPlayer()?.id === playerId; }
     public GetGameplayState(): GAME_STATE { return this.gameplayState; }
     public SetStartGameplayState(): void { this.gameplayState = GAME_STATE.STARTED; }
     public SetFinishGameplayState(): void { this.gameplayState = GAME_STATE.FINISHED; }
     private InitializeTeam(): void
     {
-        const highestAuctionPlayer: FriendCardPlayerLogic = this.GetHighestAuctionPlayer();
-        const friendPlayer: FriendCardPlayerLogic | undefined  = this.GetFriendPlayer();
+        const highestAuctionPlayer: FriendCardPlayer = this.GetHighestAuctionPlayer();
+        const friendPlayer: FriendCardPlayer | undefined  = this.GetFriendPlayer();
         if(!highestAuctionPlayer || !friendPlayer) throw new Error("Initialize team error");
         this.winnerAuctionTeam.set(highestAuctionPlayer.id,  highestAuctionPlayer);
         this.winnerAuctionTeam.set(friendPlayer.id,  friendPlayer);
@@ -157,7 +157,7 @@ export class FriendCardGameRoundLogic
     {
         this.deck.Full();
         this.discarded.Empty();
-        this.playersInOrder.forEach((player: FriendCardPlayerLogic) => {
+        this.playersInOrder.forEach((player: FriendCardPlayer) => {
             player.GetHandCard().Empty();
             player.GetHandCard().Add(this.deck.PopNumRandomCards(13));
         });
@@ -173,21 +173,21 @@ export class FriendCardGameRoundLogic
     public SetStartRoundState(): void { this.roundState = GAME_STATE.STARTED }
     public SetFinishRoundState(): void { this.roundState = GAME_STATE.FINISHED }
     public GetRoundState(): GAME_STATE { return this.roundState; }
-    public GetActionsDTOForPlayer(player: FriendCardPlayerLogic): ActionsDTO {
+    public GetActionsDTOForPlayer(player: FriendCardPlayer): ActionsDTO {
         return {
 			canPlayerTakeCard: this.CanPlayerTakeCard(player),
 			cardsPlayerCanPlay: this.CardsPlayerCanPlay(player),
 			canPlayerFinishTurn: this.CanPlayerFinishTurn(player),
 		};
 	}
-    //public CanPlayerFinishTurn(player: FriendCardPlayerLogic): boolean { return !this.IsPlayerTurn(player.id) || player.GetRequestedCardToPlay() != null ? false : true; }
-    public CanPlayerPlayCard(player: FriendCardPlayerLogic, cardId: CardId): boolean
+    public CanPlayerFinishTurn(player: FriendCardPlayer): boolean { return !this.IsPlayerTurn(player.id) /*|| player.GetRequestedCardToPlay() != null ? false : true */; }
+    public CanPlayerPlayCard(player: FriendCardPlayer, cardId: CardId): boolean
     {
         const playerHand: CardId[] = this.CardsPlayerCanPlay(player);
         return playerHand.indexOf(cardId) >= 0;
     }
-    private CanPlayerTakeCard(player: FriendCardPlayerLogic): boolean { return this.IsPlayerTurn(player.id) ? true : false; }
-    private CardsPlayerCanPlay(player: FriendCardPlayerLogic): CardId[] { return this.IsPlayerTurn(player.id) ? player.GetHandCard().GetInDeck() : []; }
+    private CanPlayerTakeCard(player: FriendCardPlayer): boolean { return this.IsPlayerTurn(player.id) ? true : false; }
+    private CardsPlayerCanPlay(player: FriendCardPlayer): CardId[] { return this.IsPlayerTurn(player.id) ? player.GetHandCard().GetInDeck() : []; }
     private IncreaseStackPass(): void { this.stackPass++; if(this.stackPass > 3) this.stackPass = 0 }
     private ClearStackPass(): void { this.stackPass = 0; }
 }

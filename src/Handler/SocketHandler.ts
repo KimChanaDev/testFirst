@@ -1,11 +1,11 @@
 import { Namespace, Server, Socket} from 'socket.io';
 import { ExtendedError } from '../../node_modules/socket.io/dist/namespace.js';
 import { GAME_TYPE } from '../Enum/GameType.js';
-import { GameRoomLogic } from '../GameLogic/Game/GameRoomLogic.js';
-import { PlayerLogic } from '../GameLogic/Player/Player.js';
-import { GamesStoreLogic } from '../GameLogic/Game/GameStoreLogic.js';
+import { GameRoom } from '../GameFlow/Game/GameRoom.js';
+import { Player } from '../GameFlow/Player/Player.js';
+import { GamesStore } from '../GameFlow/Game/GameStore.js';
 import { GAME_STATE } from '../Enum/GameState.js';
-import { PlayerFactoryLogic } from '../GameLogic/Player/PlayerFactoryLogic.js';
+import { PlayerFactory } from '../GameFlow/Player/PlayerFactory.js';
 import { PlayerDTO } from '../Model/DTO/PlayerDTO.js';
 import { BUILD_IN_SOCKET_GAME_EVENTS, SOCKET_EVENT, SOCKET_GAME_EVENTS } from '../Enum/SocketEvents.js';
 import { Types } from 'mongoose';
@@ -26,7 +26,7 @@ export abstract class SocketHandler
 	protected static io: Server;
 	private static isIoSet: boolean = false;
     protected namespace: Namespace;
-	protected abstract OnConnection(socket: Socket, game: GameRoomLogic, player: PlayerLogic): void;
+	protected abstract OnConnection(socket: Socket, game: GameRoom, player: Player): void;
 
     constructor(io: Server, namespaceName: GAME_TYPE) {
 		if (!SocketHandler.isIoSet) {
@@ -81,7 +81,7 @@ export abstract class SocketHandler
 			HandlerValidation.SocketHandlerNotHasUser(userId);
 
 			const userDoc = await UserModel.findById(userId);
-			const gameRoom: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGameById(gameId);
+			const gameRoom: GameRoom | undefined = GamesStore.getInstance.GetGameById(gameId);
 			HandlerValidation.HasUserDocument(userDoc);
 			HandlerValidation.HasGameRoom(gameRoom);
 			HandlerValidation.GameRoomNotStarted(gameRoom!);
@@ -89,7 +89,7 @@ export abstract class SocketHandler
 			HandlerValidation.GameRoomFull(gameRoom!);
 
 			SocketHandler.connectedUsers.add(userId);
-			const newPlayer: PlayerLogic = PlayerFactoryLogic.CreatePlayerObject(
+			const newPlayer: Player = PlayerFactory.CreatePlayerObject(
 				gameRoom!.gameType,
 				userDoc!.id,
 				userDoc!.username,
@@ -116,14 +116,14 @@ export abstract class SocketHandler
 	}
 	private RegisterListeners(): void
 	{
-		type GameAndPlayerType = {gameRoom: GameRoomLogic, player: PlayerLogic};
+		type GameAndPlayerType = {gameRoom: GameRoom, player: Player};
 		this.namespace.on(BUILD_IN_SOCKET_GAME_EVENTS.CONNECTION, (socket: Socket) => {
 			const gameAndPlayer: GameAndPlayerType | undefined = this.RegisterBaseListeners(socket);
 			if (!gameAndPlayer) return;
 			this.OnConnection(socket, gameAndPlayer.gameRoom, gameAndPlayer.player);
 		});
 	}
-	private RegisterBaseListeners(socket: Socket): { gameRoom: GameRoomLogic; player: PlayerLogic } | undefined
+	private RegisterBaseListeners(socket: Socket): { gameRoom: GameRoom; player: Player } | undefined
 	{
 		try
 		{
@@ -131,9 +131,9 @@ export abstract class SocketHandler
 			console.log(`Socket ${socket.id} connected`);
 			const gameId: string = socket.handshake.query.gameId as string;
 			const userId: string = socket.middlewareData.jwt?.sub as string;
-			const gameRoom: GameRoomLogic | undefined = GamesStoreLogic.getInstance.GetGameById(gameId) as GameRoomLogic;
+			const gameRoom: GameRoom | undefined = GamesStore.getInstance.GetGameById(gameId) as GameRoom;
 			HandlerValidation.HasGameRoom(gameRoom);
-			const player: PlayerLogic | undefined = gameRoom.GetPlayerById(userId) as PlayerLogic;
+			const player: Player | undefined = gameRoom.GetPlayerById(userId) as Player;
 			HandlerValidation.HasPlayerInGameRoom(player);
 			
 			socket.on(SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, () => {
@@ -144,7 +144,7 @@ export abstract class SocketHandler
 				SocketHandler.connectedUsers.delete(userId);
 				gameRoom.DisconnectPlayer(player);
 				if (gameRoom.GetGameRoomState() === GAME_STATE.FINISHED) {
-					const gameFinishedDTO: GameFinishedDTO = { winnerUsername: (gameRoom.GetWinner() as PlayerLogic).username };
+					const gameFinishedDTO: GameFinishedDTO = { winnerUsername: (gameRoom.GetWinner() as Player).username };
 					this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.GAME_FINISHED, gameId, gameFinishedDTO);
 				} else
 					this.EmitToRoomAndSender( socket, SOCKET_GAME_EVENTS.PLAYER_DISCONNECTED, gameId, PlayerDTO.CreateFromPlayer(player));
