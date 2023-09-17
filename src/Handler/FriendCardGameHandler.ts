@@ -27,7 +27,9 @@ export class FriendCardGameHandler extends SocketHandler
             try
             {
                 HandlerValidation.IsOwnerRoom(gameRoom, player);
-                gameRoom.Start();
+                HandlerValidation.PlayerGreaterThanFour(gameRoom);
+                HandlerValidation.AreAllPlayersReady(gameRoom);
+                gameRoom.StartProcess();
                 this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.START_GAME, gameRoom.id);
                 callback({ success: true } as BaseResponseDTO);
             }
@@ -40,7 +42,10 @@ export class FriendCardGameHandler extends SocketHandler
             try
             {
                 HandlerValidation.GameAndRoundStarted(gameRoom);
-                gameRoom.GetCurrentRoundGame().Auction(auctionPass, auctionPoint);
+                HandlerValidation.IsPlayerTurn(gameRoom, player);
+                HandlerValidation.AcceptableAuctionPoint(auctionPass, auctionPoint);
+                HandlerValidation.AuctionPointGreaterThan(auctionPass, auctionPoint, gameRoom.GetCurrentRoundGame().GetAuctionPoint());
+                gameRoom.GetCurrentRoundGame().AuctionProcess(auctionPass, auctionPoint);
                 const [nextPlayerId, highestAuctionPlayerId, currentAuctionPoint, gameplayState] = gameRoom.GetCurrentRoundGame().GetInfoForAuctionPointResponse();
                 const auctionPointDTO: AuctionPointDTO = {
                     nextPlayerId: nextPlayerId,
@@ -65,9 +70,10 @@ export class FriendCardGameHandler extends SocketHandler
         socket.on(SOCKET_GAME_EVENTS.SELECT_MAIN_CARD, (trumpColor: ColorType, friendCard: CardId, callback: (response: TrumpAndFriendDTO | BaseResponseDTO) => void) => {
             try
             {
-                HandlerValidation.GameAndRoundStarted(gameRoom);
+                HandlerValidation.GameAndRoundAndGameplayStarted(gameRoom);
                 HandlerValidation.IsWinnerAuction(gameRoom, player);
-                gameRoom.GetCurrentRoundGame().SetTrumpAndFriend(trumpColor, friendCard);
+                HandlerValidation.NotHasCardInHand(gameRoom, friendCard);
+                gameRoom.GetCurrentRoundGame().SetTrumpAndFriendProcess(trumpColor, friendCard);
                 const trumpAndFriendDTO :TrumpAndFriendDTO = {
                     trumpColor: trumpColor,
                     friendCard: friendCard
@@ -90,9 +96,8 @@ export class FriendCardGameHandler extends SocketHandler
         socket.on(SOCKET_GAME_EVENTS.CARD_PLAYED,(cardId: CardId, callback: (response: CardPlayedResponseDTO | BaseResponseDTO) => void) => {
             try
             {
-                HandlerValidation.CanPlayerPlayCard(gameRoom, player, cardId);
-                player.GetHandCard().Remove(cardId);
-                const playedCard: CardId = gameRoom.GetCurrentRoundGame().PlayCard(cardId, player.id);
+                HandlerValidation.HasCardOnHandAndIsTurn(gameRoom, player, cardId);
+                const playedCard: CardId = gameRoom.GetCurrentRoundGame().PlayCardProcess(cardId, player.id);
                 const cardPlayedDTO: CardPlayedDTO = {
                     playerId: player.id,
                     cardId: playedCard

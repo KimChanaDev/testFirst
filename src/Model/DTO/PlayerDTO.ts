@@ -1,4 +1,4 @@
-import { PlayerLogic } from "../../GameLogic/Player/PlayerLogic.js";
+import { PlayerLogic } from "../../GameLogic/Player/Player.js";
 
 export class PlayerDTO {
 	constructor(

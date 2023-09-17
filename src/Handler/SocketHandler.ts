@@ -2,7 +2,7 @@ import { Namespace, Server, Socket} from 'socket.io';
 import { ExtendedError } from '../../node_modules/socket.io/dist/namespace.js';
 import { GAME_TYPE } from '../Enum/GameType.js';
 import { GameRoomLogic } from '../GameLogic/Game/GameRoomLogic.js';
-import { PlayerLogic } from '../GameLogic/Player/PlayerLogic.js';
+import { PlayerLogic } from '../GameLogic/Player/Player.js';
 import { GamesStoreLogic } from '../GameLogic/Game/GameStoreLogic.js';
 import { GAME_STATE } from '../Enum/GameState.js';
 import { PlayerFactoryLogic } from '../GameLogic/Player/PlayerFactoryLogic.js';
@@ -135,11 +135,7 @@ export abstract class SocketHandler
 			HandlerValidation.HasGameRoom(gameRoom);
 			const player: PlayerLogic | undefined = gameRoom.GetPlayerById(userId) as PlayerLogic;
 			HandlerValidation.HasPlayerInGameRoom(player);
-
-			socket.on(SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, () => {
-				player.ToggleIsReady();
-				this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, gameId, PlayerDTO.CreateFromPlayer(player));
-			});
+			
 			socket.on(SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, () => {
 				player.ToggleIsReady();
 				this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, gameId, PlayerDTO.CreateFromPlayer(player));
@@ -151,8 +147,7 @@ export abstract class SocketHandler
 					const gameFinishedDTO: GameFinishedDTO = { winnerUsername: (gameRoom.GetWinner() as PlayerLogic).username };
 					this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.GAME_FINISHED, gameId, gameFinishedDTO);
 				} else
-					this.EmitToRoomAndSender( socket, SOCKET_GAME_EVENTS.PLAYER_DISCONNECTED, gameId, PlayerDTO.CreateFromPlayer(player)
-				);
+					this.EmitToRoomAndSender( socket, SOCKET_GAME_EVENTS.PLAYER_DISCONNECTED, gameId, PlayerDTO.CreateFromPlayer(player));
 				console.log(`Socket ${socket.id} disconnected - ${disconnectReason}`);
 			});
 			socket.on(BUILD_IN_SOCKET_GAME_EVENTS.ERROR, (error: Error) => {

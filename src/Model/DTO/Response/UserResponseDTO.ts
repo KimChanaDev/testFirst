@@ -1,4 +1,4 @@
-import { PlayerLogic } from "../../../GameLogic/Player/PlayerLogic.js";
+import { PlayerLogic } from "../../../GameLogic/Player/Player.js";
 import { Document, Types } from 'mongoose';
 import { UserDocument } from "../../Entity/UserEntity.js";
 export class UserResponseDTO

@@ -1,7 +1,7 @@
 import { CardId, ColorType } from "../../Enum/CardConstant.js";
 import { DeckLogic } from "../Card/DeckLogic.js";
 import { GameRoomLogic } from "./GameRoomLogic.js";
-import { PlayerLogic } from "../Player/PlayerLogic.js";
+import { PlayerLogic } from "../Player/Player.js";
 import { ShuffleArray } from "../Utils/Tools.js";
 import { ActionsDTO } from "../../Model/DTO/ActionsDTO.js";
 import { FriendCardPlayerLogic } from "../Player/FriendCardPlayerLogic.js";
@@ -15,25 +15,34 @@ export class FriendCardGameRoomLogic extends GameRoomLogic
     private roundsInGame: FriendCardGameRoundLogic[] = [];
     private currentRoundNumber: number = 0;
     private readonly totalNumberRound: number = 4;
-    public Start(): void
+    public StartProcess(): void
     {
-        if (this.NumPlayersInGame() < 4) throw Error("Minimum 4 players required");
-        if (!this.AreAllPlayersReady()) throw Error('Not all players ready');
-        this.InitRoundInGame();
+        this.InitFourRoundInGame();
         super.SetStartState();
-        this.GetCurrentRoundGame().StartRound(this.GetAllPlayerAsArray());
+        this.GetCurrentRoundGame().StartRoundProcess(this.GetAllPlayerAsArray());
     }
-    private InitRoundInGame(): void
+    private InitFourRoundInGame(): void
     {
         for (let i = 0; i < 4; i++) { this.roundsInGame.push(new FriendCardGameRoundLogic()); }
         this.currentRoundNumber = 0;
     }
     public GetCurrentRoundGame(): FriendCardGameRoundLogic { return this.roundsInGame[this.currentRoundNumber]; }
+    public IsCurrentRoundGameFinish(): boolean { return this.GetCurrentRoundGame().GetRoundState() === GAME_STATE.FINISHED && this.GetCurrentRoundGame().GetGameplayState() === GAME_STATE.FINISHED; }
     public GetAllPlayerAsArray(): FriendCardPlayerLogic[] { return Array.from(this.playersInGame.values()); }
-    public NextRound(): void
+    public NextRoundProcess(): void
     {
         this.currentRoundNumber++;
-        if (this.currentRoundNumber >= this.totalNumberRound) this.currentRoundNumber = 0;
+        if (this.currentRoundNumber >= this.totalNumberRound)
+        {
+            this.currentRoundNumber = 0;
+            this.CalculateGameWinner();
+        } 
+    }
+    private CalculateGameWinner(): void
+    {
+        this.roundsInGame.forEach(a => {
+            
+        })
     }
     public DisconnectPlayer(player: FriendCardPlayerLogic): void
     {

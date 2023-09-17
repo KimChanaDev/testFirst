@@ -8,11 +8,16 @@ import { SocketHandler } from "./SocketHandler.js";
 import { GameRoomLogic } from "../GameLogic/Game/GameRoomLogic.js";
 import { IJwtValidation } from "../GameLogic/Utils/Authorization/JWT.js";
 import { JwtValidationError } from "../Enum/JwtValidationError.js";
-import { PlayerLogic } from "../GameLogic/Player/PlayerLogic.js";
+import { PlayerLogic } from "../GameLogic/Player/Player.js";
 
 export abstract class HandlerValidation extends SocketHandler
 {
-    public static CanPlayerPlayCard(gameRoom: FriendCardGameRoomLogic, player: FriendCardPlayerLogic, cardId: CardId): void
+    public static IsPlayerTurn(gameRoom: FriendCardGameRoomLogic, player: FriendCardPlayerLogic): void
+    {
+        if(!gameRoom.GetCurrentRoundGame().IsPlayerTurn(player.id))
+            throw new Error("Not your turn");
+    }
+    public static HasCardOnHandAndIsTurn(gameRoom: FriendCardGameRoomLogic, player: FriendCardPlayerLogic, cardId: CardId): void
     {
         if (!gameRoom.GetCurrentRoundGame().CanPlayerPlayCard(player, cardId))
             throw new Error("Cannot play that card");
@@ -21,6 +26,13 @@ export abstract class HandlerValidation extends SocketHandler
     {
         if(gameRoom.GetGameRoomState() !== GAME_STATE.STARTED || gameRoom.GetCurrentRoundGame().GetRoundState() !== GAME_STATE.STARTED)
             throw new Error("Game not started");
+    }
+    public static GameAndRoundAndGameplayStarted(gameRoom: FriendCardGameRoomLogic): void
+    {
+        if( gameRoom.GetGameRoomState() !== GAME_STATE.STARTED
+            || gameRoom.GetCurrentRoundGame().GetRoundState() !== GAME_STATE.STARTED
+            || gameRoom.GetCurrentRoundGame().GetGameplayState() !== GAME_STATE.STARTED )
+            throw new Error("Gameplay not started");
     }
     public static IsWinnerAuction(gameRoom: FriendCardGameRoomLogic, player: FriendCardPlayerLogic): void
     {
@@ -79,17 +91,38 @@ export abstract class HandlerValidation extends SocketHandler
     public static ValidateJWTSuccess(socket: Socket, validateResult: IJwtValidation): void
     {
         if (!validateResult.success && validateResult.error === JwtValidationError.EXPIRED)
-        {
             throw new SocketSessionExpiredError();
-        }
         else if (!validateResult.success)
-        {
             throw new SocketUnauthorizedError();
-        }
     }
     public static HasPlayerInGameRoom(player: PlayerLogic | undefined): void
     {
         if(!player) 
             throw new Error();
+    }
+    public static PlayerGreaterThanFour(gameRoom: GameRoomLogic): void 
+    {
+        if (gameRoom.NumPlayersInGame() < 4) 
+            throw Error("Minimum 4 players required");
+    }
+    public static AreAllPlayersReady(gameRoom: GameRoomLogic): void
+    {
+        if (!gameRoom.AreAllPlayersReady())
+            throw Error('Not all players ready');
+    }
+    public static AcceptableAuctionPoint(pass: boolean, point: number): void
+    {
+        if (!pass && (point % 5 !== 0 || point < 55 || point > 100)) 
+            throw new Error("Incorrect auction point");
+    }
+    public static AuctionPointGreaterThan(pass: boolean,newPoint: number, previosPoint: number): void
+    {
+        if(!pass && (newPoint < previosPoint))
+            throw new Error("New auction point less than previos");
+    }
+    public static NotHasCardInHand(gameRoom: FriendCardGameRoomLogic, friendCard: CardId): void
+    {
+        if (gameRoom.GetCurrentRoundGame().GetCurrentPlayer().GetHandCard().HasCard(friendCard))
+            throw new Error("You have this card in your hand");
     }
 }
