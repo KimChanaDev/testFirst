@@ -23,26 +23,20 @@ export class FriendCardGameRoom extends GameRoom
     }
     private InitFourRoundInGame(): void
     {
-        for (let i = 0; i < 4; i++) { this.roundsInGame.push(new FriendCardGameRound()); }
+        for (let i = 0; i < this.totalNumberRound; i++) { this.roundsInGame.push(new FriendCardGameRound(i)); }
         this.currentRoundNumber = 0;
     }
     public GetCurrentRoundGame(): FriendCardGameRound { return this.roundsInGame[this.currentRoundNumber]; }
-    public IsCurrentRoundGameFinish(): boolean { return this.GetCurrentRoundGame().GetRoundState() === GAME_STATE.FINISHED && this.GetCurrentRoundGame().GetGameplayState() === GAME_STATE.FINISHED; }
+    public IsCurrentRoundGameFinished(): boolean { return this.GetCurrentRoundGame().GetRoundState() === GAME_STATE.FINISHED && this.GetCurrentRoundGame().GetGameplayState() === GAME_STATE.FINISHED; }
     public GetAllPlayerAsArray(): FriendCardPlayer[] { return Array.from(this.playersInGame.values()); }
     public NextRoundProcess(): void
     {
         this.currentRoundNumber++;
         if (this.currentRoundNumber >= this.totalNumberRound)
         {
-            this.currentRoundNumber = 0;
-            this.CalculateGameWinner();
-        } 
-    }
-    private CalculateGameWinner(): void
-    {
-        this.roundsInGame.forEach(a => {
-            
-        })
+            this.FinishGame();
+        }
+        this.GetCurrentRoundGame().StartRoundProcess(this.GetAllPlayerAsArray());
     }
     public DisconnectPlayer(player: FriendCardPlayer): void
     {
@@ -65,6 +59,16 @@ export class FriendCardGameRoom extends GameRoom
     }
     public FinishGame(): void
     {
-
+        let winnerPoint: number = -500;
+        let winnerPlayer: FriendCardPlayer | undefined;
+        this.playersInGame.forEach(player => {
+            if(player.GetGamepoint() > winnerPoint)
+            {
+                winnerPoint = player.GetGamepoint();
+                winnerPlayer = player;
+            }
+        })
+        this.winner = winnerPlayer;
+        this.SetFinishState();
     }
 }

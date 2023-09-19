@@ -49,7 +49,7 @@ export class FriendCardGameHandler extends SocketHandler
                 const [nextPlayerId, highestAuctionPlayerId, currentAuctionPoint, gameplayState] = gameRoom.GetCurrentRoundGame().GetInfoForAuctionPointResponse();
                 const auctionPointDTO: AuctionPointDTO = {
                     nextPlayerId: nextPlayerId,
-                    currentHighestAuctionPlayerId: highestAuctionPlayerId,
+                    currentHighestAuctionPlayerId: highestAuctionPlayerId ?? '',
                     currentAuctionPoint: currentAuctionPoint,
                     gameplayState: gameplayState
                 };
@@ -98,6 +98,10 @@ export class FriendCardGameHandler extends SocketHandler
             {
                 HandlerValidation.HasCardOnHandAndIsTurn(gameRoom, player, cardId);
                 const playedCard: CardId = gameRoom.GetCurrentRoundGame().PlayCardProcess(cardId, player.id);
+                if (gameRoom.IsCurrentRoundGameFinished())
+                {
+                    gameRoom.NextRoundProcess();
+                }
                 const cardPlayedDTO: CardPlayedDTO = {
                     playerId: player.id,
                     cardId: playedCard

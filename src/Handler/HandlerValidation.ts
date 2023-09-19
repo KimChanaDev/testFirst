@@ -19,7 +19,7 @@ export abstract class HandlerValidation extends SocketHandler
     }
     public static HasCardOnHandAndIsTurn(gameRoom: FriendCardGameRoom, player: FriendCardPlayer, cardId: CardId): void
     {
-        if (!gameRoom.GetCurrentRoundGame().CanPlayerPlayCard(player, cardId))
+        if (!gameRoom.GetCurrentRoundGame().CanPlayerPlaySpecificCard(player, cardId))
             throw new Error("Cannot play that card");
     }
     public static GameAndRoundStarted(gameRoom: FriendCardGameRoom): void
@@ -36,7 +36,7 @@ export abstract class HandlerValidation extends SocketHandler
     }
     public static IsWinnerAuction(gameRoom: FriendCardGameRoom, player: FriendCardPlayer): void
     {
-        if(gameRoom.GetCurrentRoundGame().GetHighestAuctionPlayer().id !== player.id)
+        if(gameRoom.GetCurrentRoundGame().GetHighestAuctionPlayer()?.id !== player.id)
             throw new Error("You are not the winning auction");
     }
     public static IsOwnerRoom(gameRoom: FriendCardGameRoom, player: FriendCardPlayer): void
