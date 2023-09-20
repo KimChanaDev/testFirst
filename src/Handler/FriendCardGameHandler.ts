@@ -12,6 +12,7 @@ import { CardPlayedResponseDTO } from "../Model/DTO/Response/CardPlayedResponseD
 import { AuctionPointDTO, AuctionPointResponseDTO } from "../Model/DTO/AuctionPointDTO.js";
 import { TrumpAndFriendDTO } from "../Model/DTO/TrumpAndFriendDTO.js";
 import { HandlerValidation } from "./HandlerValidation.js";
+import { PlayerDTO } from "../Model/DTO/PlayerDTO.js";
 
 export class FriendCardGameHandler extends SocketHandler
 {
@@ -23,6 +24,10 @@ export class FriendCardGameHandler extends SocketHandler
         if (!(gameRoom instanceof FriendCardGameRoom)) throw new Error('GameType mismatch');
 		if (!(player instanceof FriendCardPlayer)) throw new Error('PlayerType mismatch');
 
+        socket.on(SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, () => {
+            player.ToggleIsReady();
+            super.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.PLAYER_TOGGLE_READY, gameRoom.id, PlayerDTO.CreateFromPlayer(player));
+        });
         socket.on(SOCKET_GAME_EVENTS.START_GAME, (callback: (response: BaseResponseDTO) => void) => {
             try
             {
@@ -30,7 +35,7 @@ export class FriendCardGameHandler extends SocketHandler
                 HandlerValidation.PlayerGreaterThanFour(gameRoom);
                 HandlerValidation.AreAllPlayersReady(gameRoom);
                 gameRoom.StartProcess();
-                this.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.START_GAME, gameRoom.id);
+                super.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.START_GAME, gameRoom.id);
                 callback({ success: true } as BaseResponseDTO);
             }
             catch(ex : any)
@@ -48,6 +53,7 @@ export class FriendCardGameHandler extends SocketHandler
                 gameRoom.GetCurrentRoundGame().AuctionProcess(auctionPass, auctionPoint);
                 const [nextPlayerId, highestAuctionPlayerId, currentAuctionPoint, gameplayState] = gameRoom.GetCurrentRoundGame().GetInfoForAuctionPointResponse();
                 const auctionPointDTO: AuctionPointDTO = {
+                    playerId: player.id,
                     nextPlayerId: nextPlayerId,
                     currentHighestAuctionPlayerId: highestAuctionPlayerId ?? '',
                     currentAuctionPoint: currentAuctionPoint,
@@ -75,6 +81,7 @@ export class FriendCardGameHandler extends SocketHandler
                 HandlerValidation.NotHasCardInHand(gameRoom, friendCard);
                 gameRoom.GetCurrentRoundGame().SetTrumpAndFriendProcess(trumpColor, friendCard);
                 const trumpAndFriendDTO :TrumpAndFriendDTO = {
+                    playerId: player.id,
                     trumpColor: trumpColor,
                     friendCard: friendCard
                 };

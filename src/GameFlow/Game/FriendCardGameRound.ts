@@ -1,11 +1,9 @@
 import { CardId, ColorType } from "../../Enum/CardConstant.js";
 import { GAME_STATE } from "../../Enum/GameState.js";
 import { ActionsDTO } from "../../Model/DTO/ActionsDTO.js";
-import { AuctionPointDTO } from "../../Model/DTO/AuctionPointDTO.js";
-import { TrickCardDetailModel, TrickCardModel } from "../../Model/DTO/TrickCardModel.js";
+import { TrickCardModel } from "../../Model/DTO/TrickCardModel.js";
 import { CardLogic } from "../../GameLogic/Card/CardLogic.js";
 import { DeckLogic } from "../../GameLogic/Card/DeckLogic.js";
-import { FriendCardLogic } from "../../GameLogic/Card/FriendCardLogic.js";
 import { FriendCardPlayer } from "../Player/FriendCardPlayer.js";
 import { ShuffleArray } from "../../GameLogic/Utils/Tools.js";
 import { FriendCardGameRoundLogic } from "../../GameLogic/Game/FriendCardGameRoundLogic.js";
