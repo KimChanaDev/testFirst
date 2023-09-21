@@ -1,8 +1,8 @@
-import { CardId, ColorType } from "../../Enum/CardConstant.js";
-import { FriendCardPlayer } from "../../GameFlow/Player/FriendCardPlayer.js";
-import { TrickCardDetailModel, TrickCardModel } from "../../Model/DTO/TrickCardModel.js";
-import { DeckLogic } from "../Card/DeckLogic.js";
-import { FriendCardLogic } from "../Card/FriendCardLogic.js";
+import {CardId, ColorType} from "../../Enum/CardConstant.js";
+import {FriendCardPlayer} from "../../GameFlow/Player/FriendCardPlayer.js";
+import {TrickCardDetailModel, TrickCardModel} from "../../Model/DTO/TrickCardModel.js";
+import {DeckLogic} from "../Card/DeckLogic.js";
+import {FriendCardLogic} from "../Card/FriendCardLogic.js";
 
 export class FriendCardGameRoundLogic
 {
@@ -20,10 +20,9 @@ export class FriendCardGameRoundLogic
         trickCardModel.winnerId = winnerId;
         trickCardModel.pointInTrick = pointInTrick;
         playersInOrder.find(a => a.id === winnerId)?.AddRoundPoint(roundNumber, pointInTrick);
-        const nextLeaderNumber = playersInOrder.findIndex(a => a.id === winnerId);
-        return nextLeaderNumber; 
+        return playersInOrder.findIndex(a => a.id === winnerId);
     }
-    public static NextTrict(currentTrickNumber: number): number
+    public static NextTrick(currentTrickNumber: number): number
     {
         return currentTrickNumber++;
     }
@@ -38,12 +37,6 @@ export class FriendCardGameRoundLogic
         winnerAuctionTeamIds.push(highestAuctionPlayer.id);
         winnerAuctionTeamIds.push(friendPlayer.id);
         playersInOrder.filter(p => p.id !== highestAuctionPlayer.id && p.id !== friendPlayer.id).forEach(player => anotherTeamIds.push(player.id));
-        const player1: FriendCardPlayer = highestAuctionPlayer;
-        const player2: FriendCardPlayer | undefined= playersInOrder.find(a => a.id === anotherTeamIds.at(0));
-        const player3: FriendCardPlayer = friendPlayer;
-        const player4: FriendCardPlayer | undefined = playersInOrder.find(a => a.id === anotherTeamIds.at(1));
-        if(player1 && player2 && player3 && player4)
-            playersInOrder = [player1, player2, player3, player4]
     }
     public static InitializeTrick(number: number, trickCardMap: Map<number, TrickCardModel>): void 
     {
@@ -80,10 +73,6 @@ export class FriendCardGameRoundLogic
             anotherTeamTotalPoint += p.GetRoundPoint(roundNumber) ?? 0;
         })
         return [winnerAuctionTeamTotalPoint, anotherTeamTotalPoint]
-    }
-    public static GetCarrentTrickCardModel(currentTrickNumber: number, trickCardMap: Map<number, TrickCardModel>): TrickCardModel | undefined 
-    { 
-        return trickCardMap.get(currentTrickNumber); 
     }
     public static CalculatePlayerGamePoint(
         roundNumber: number,

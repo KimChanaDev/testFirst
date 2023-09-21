@@ -7,10 +7,11 @@ export class FriendCardGameRoom extends GameRoom
 {
     protected winner?: FriendCardPlayer | undefined;
     protected playersInGame = new Map<string, FriendCardPlayer>();
+    private winnerPoint: number = 0;
     private roundsInGame: FriendCardGameRound[] = [];
     private currentRoundNumber: number = 0;
     private readonly totalNumberRound: number = 4;
-    public StartProcess(): void
+    public StartGameProcess(): void
     {
         this.InitFourRoundInGame();
         super.SetStartState();
@@ -24,6 +25,12 @@ export class FriendCardGameRoom extends GameRoom
     public GetCurrentRoundGame(): FriendCardGameRound { return this.roundsInGame[this.currentRoundNumber]; }
     public IsCurrentRoundGameFinished(): boolean { return this.GetCurrentRoundGame().GetRoundState() === GAME_STATE.FINISHED && this.GetCurrentRoundGame().GetGameplayState() === GAME_STATE.FINISHED; }
     public GetAllPlayerAsArray(): FriendCardPlayer[] { return Array.from(this.playersInGame.values()); }
+    public GetAllPlayerIdAsArray(): string[]
+    {
+        const playerIds: string[] = [];
+        this.GetAllPlayerAsArray().forEach(a => playerIds.push(a.id));
+        return playerIds;
+    }
     public NextRoundProcess(): void
     {
         this.currentRoundNumber++;
@@ -64,6 +71,9 @@ export class FriendCardGameRoom extends GameRoom
             }
         })
         this.winner = winnerPlayer;
+        this.winnerPoint = winnerPoint;
         this.SetFinishState();
+
+        // TODO save stat to database
     }
 }

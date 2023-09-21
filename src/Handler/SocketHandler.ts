@@ -10,7 +10,7 @@ import { PlayerDTO } from '../Model/DTO/PlayerDTO.js';
 import { BUILD_IN_SOCKET_GAME_EVENTS, SOCKET_EVENT, SOCKET_GAME_EVENTS } from '../Enum/SocketEvents.js';
 import { GameFinishedDTO } from '../Model/DTO/GameFinishedDTO.js';
 import { UserModel } from '../Model/Entity/UserEntity.js';
-import { SocketBadConnectionError, SocketGameAlreadyStartedError, SocketGameNotExistError, SocketRoomFullError, SocketSessionExpiredError, SocketUnauthorizedError, SocketUserAlreadyConnectedError, SocketWrongRoomPasswordError } from '../Error/SocketErrorException.js';
+import { SocketBadConnectionError, SocketGameAlreadyStartedError, SocketGameNotExistError, SocketRoomFullError, SocketSessionExpiredError, SocketUnauthorizedError, SocketWrongRoomPasswordError } from '../Error/SocketErrorException.js';
 import { IJwtValidation, ValidateJWT } from '../GameLogic/Utils/Authorization/JWT.js';
 import { HandlerValidation } from './HandlerValidation.js';
 
@@ -50,6 +50,7 @@ export abstract class SocketHandler
 	private static AddMiddlewareDataProperty(socket: Socket, next: SocketNextFunction): void
 	{
 		socket.middlewareData = {};
+		next();
 	}
 	private static VerifyJwt(socket: Socket, next: SocketNextFunction): void
 	{
@@ -57,7 +58,7 @@ export abstract class SocketHandler
 		{
 			HandlerValidation.HandshakeHasToken(socket);
 			const validateResult: IJwtValidation = ValidateJWT(socket.handshake.query.token as string);
-			HandlerValidation.ValidateJWTSuccess(socket, validateResult);
+			HandlerValidation.ValidateJWTSuccess(validateResult);
 			socket.middlewareData.jwt = validateResult.payload;
 			return next();
 		}

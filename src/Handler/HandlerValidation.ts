@@ -88,7 +88,7 @@ export abstract class HandlerValidation extends SocketHandler
         if (!socket.handshake.query.token)
 			throw new SocketUnauthorizedError();
     }
-    public static ValidateJWTSuccess(socket: Socket, validateResult: IJwtValidation): void
+    public static ValidateJWTSuccess(validateResult: IJwtValidation): void
     {
         if (!validateResult.success && validateResult.error === JwtValidationError.EXPIRED)
             throw new SocketSessionExpiredError();

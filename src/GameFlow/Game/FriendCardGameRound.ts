@@ -21,13 +21,14 @@ export class FriendCardGameRound
     private highestAuctionId: string = '';
     private auctionWinnerTeamIds: string[] = [];
     private anotherTeamIds: string[] = [];
-    private trickCardMap = new Map<number, TrickCardModel>();
+    private trickCardMap: Map<number, TrickCardModel>  = new Map<number, TrickCardModel>();
     private winnerAuctionTeamTotalPoint: number = 0;
     private anotherTeamTotalPoint: number = 0;
     private currentPlayerNumber: number = 0;
     private currentTrickNumber: number = 0;
     private stackPass: number = 0;
-    private roundNumber: number;
+    private isFriendAppeared: boolean = false;
+    private readonly roundNumber: number;
     constructor(roundNumber: number) { this.roundNumber = roundNumber; };
     public StartRoundProcess(initialPlayers : FriendCardPlayer[]): void
     {
@@ -41,19 +42,20 @@ export class FriendCardGameRound
     {
         if (auctionPass)
         {
-            this.stackPass++; 
-            if(this.stackPass > 3) this.stackPass = 0
-            this.currentPlayerNumber = FriendCardGameRoundLogic.NextPlayer(this.currentPlayerNumber, this.playersInOrder.length);
-            if(this.stackPass === 3) this.gameplayState = GAME_STATE.STARTED;
+            this.stackPass++;
         }
         else
         {
             this.auctionPoint = newAuctionPoint;
             this.highestAuctionId = this.GetCurrentPlayer().id;
             this.stackPass = 0;
-            this.currentPlayerNumber = FriendCardGameRoundLogic.NextPlayer(this.currentPlayerNumber, this.playersInOrder.length);
-            if (this.auctionPoint === 100) this.gameplayState = GAME_STATE.STARTED;
         }
+        if(this.stackPass === 3 || this.auctionPoint === 100)
+        {
+            this.gameplayState = GAME_STATE.STARTED;
+            return;
+        }
+        this.currentPlayerNumber = FriendCardGameRoundLogic.NextPlayer(this.currentPlayerNumber, this.playersInOrder.length);
     }
     public SetTrumpAndFriendProcess(trumpColor: ColorType, friendCard: CardId): void
     {
@@ -63,8 +65,8 @@ export class FriendCardGameRound
         const friendPlayer: FriendCardPlayer | undefined  = this.GetFriendPlayer();
         
         FriendCardGameRoundLogic.InitializeTeam(highestAuctionPlayer, friendPlayer, this.playersInOrder, this.auctionWinnerTeamIds, this.anotherTeamIds);
-        this.currentPlayerNumber = 0;
         FriendCardGameRoundLogic.InitializeTrick(13, this.trickCardMap);
+        this.currentTrickNumber = 0;
     }
     
     public PlayCardProcess(cardId: CardId, playerId: string): CardId
@@ -88,19 +90,20 @@ export class FriendCardGameRound
             removeCard = cardId;
         }
         this.GetCurrentPlayer().GetHandCard().Remove(removeCard);
-        const carrentTrickCardModel: TrickCardModel | undefined = FriendCardGameRoundLogic.GetCarrentTrickCardModel(this.currentTrickNumber, this.trickCardMap);
-        carrentTrickCardModel?.AddCardDetail(playerId, removeCard);
+        const currentTrickCardModel: TrickCardModel | undefined = this.trickCardMap.get(this.currentTrickNumber);
+        currentTrickCardModel?.AddCardDetail(playerId, removeCard);
+        if (this.friendCard === removeCard) { this.isFriendAppeared = true; }
         this.currentPlayerNumber = FriendCardGameRoundLogic.NextPlayer(this.currentPlayerNumber, this.playersInOrder.length);
-        const isFinishedTrick: boolean | undefined = leaderColor && carrentTrickCardModel?.detail.length === 4;
-        if(isFinishedTrick)
+        const isFinishedTrick: boolean | undefined = leaderColor && currentTrickCardModel?.detail.length === 4;
+        if (isFinishedTrick)
         {
             this.currentPlayerNumber =  FriendCardGameRoundLogic.CalculateWinnerTrickSetNextLeader(
                                         this.trumpColor, 
                                         leaderColor!, 
-                                        carrentTrickCardModel!, 
+                                        currentTrickCardModel!,
                                         this.playersInOrder,
                                         this.roundNumber);
-            this.currentTrickNumber = FriendCardGameRoundLogic.NextTrict(this.currentTrickNumber);
+            this.currentTrickNumber++;
             if(this.currentTrickNumber >= 13) { this.FinishRound() }
         }
         return removeCard;
@@ -124,7 +127,9 @@ export class FriendCardGameRound
         this.gameplayState = GAME_STATE.FINISHED;
         this.roundState = GAME_STATE.FINISHED;
     }
-    
+    public IsFriendAppeared(): boolean { return this.isFriendAppeared; }
+    public GetAuctionWinnerTeamIds(): string[] { return this.auctionWinnerTeamIds; }
+    public GetAnotherTeamIds(): string[] { return this.anotherTeamIds; }
     public GetFriendPlayer(): FriendCardPlayer | undefined { return this.playersInOrder.find(p => {p.GetHandCard().HasCard(this.friendCard)})}
     public GetCurrentPlayer(): FriendCardPlayer { return this.playersInOrder[this.currentPlayerNumber]; }
     public GetHighestAuctionPlayer(): FriendCardPlayer | undefined { return this.playersInOrder.find(a => a.id === this.highestAuctionId); }
@@ -137,8 +142,8 @@ export class FriendCardGameRound
     
     public GetActionsDTOForPlayer(player: FriendCardPlayer): ActionsDTO {
         return {
-			canPlayerTakeCard: this.IsPlayerTurn(player.id),
-			cardsPlayerCanPlay: player.GetHandCard().GetInDeck(),
+			isPlayerTurn: this.IsPlayerTurn(player.id),
+			cardsPlayerCanPlay: this.IsPlayerTurn(player.id) ? player.GetHandCard().GetInDeck() : [],
 		};
 	}
     public CanPlayerPlaySpecificCard(player: FriendCardPlayer, cardId: CardId): boolean

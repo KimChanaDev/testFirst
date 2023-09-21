@@ -13,13 +13,15 @@ import { AuctionPointDTO, AuctionPointResponseDTO } from "../Model/DTO/AuctionPo
 import { TrumpAndFriendDTO } from "../Model/DTO/TrumpAndFriendDTO.js";
 import { HandlerValidation } from "./HandlerValidation.js";
 import { PlayerDTO } from "../Model/DTO/PlayerDTO.js";
+import { GameRoom } from "../GameFlow/Game/GameRoom.js";
+import { Player } from "../GameFlow/Player/Player.js";
 
 export class FriendCardGameHandler extends SocketHandler
 {
     constructor(io: Server) {
 		super(io, GAME_TYPE.FRIENDCARDGAME);
 	}
-    protected OnConnection(socket: Socket, gameRoom: FriendCardGameRoom, player: FriendCardPlayer): void
+    protected OnConnection(socket: Socket, gameRoom: GameRoom, player: Player): void
     {
         if (!(gameRoom instanceof FriendCardGameRoom)) throw new Error('GameType mismatch');
 		if (!(player instanceof FriendCardPlayer)) throw new Error('PlayerType mismatch');
@@ -34,7 +36,7 @@ export class FriendCardGameHandler extends SocketHandler
                 HandlerValidation.IsOwnerRoom(gameRoom, player);
                 HandlerValidation.PlayerGreaterThanFour(gameRoom);
                 HandlerValidation.AreAllPlayersReady(gameRoom);
-                gameRoom.StartProcess();
+                gameRoom.StartGameProcess();
                 super.EmitToRoomAndSender(socket, SOCKET_GAME_EVENTS.START_GAME, gameRoom.id);
                 callback({ success: true } as BaseResponseDTO);
             }
@@ -55,7 +57,7 @@ export class FriendCardGameHandler extends SocketHandler
                 const auctionPointDTO: AuctionPointDTO = {
                     playerId: player.id,
                     nextPlayerId: nextPlayerId,
-                    currentHighestAuctionPlayerId: highestAuctionPlayerId ?? '',
+                    currentHighestAuctionPlayerId: highestAuctionPlayerId ?? "",
                     currentAuctionPoint: currentAuctionPoint,
                     gameplayState: gameplayState
                 };
@@ -97,9 +99,6 @@ export class FriendCardGameHandler extends SocketHandler
                 callback({ success: false, error: error?.message } as BaseResponseDTO);
             }
         });
-        socket.on(SOCKET_GAME_EVENTS.GET_GAME_STATE, (callback: (friendCardGameStateForPlayer: FriendCardGameStateForPlayerDTO) => void) => {
-            callback(FriendCardGameStateForPlayerDTO.CreateFromFriendCardGameAndPlayer(gameRoom, player));
-		});
         socket.on(SOCKET_GAME_EVENTS.CARD_PLAYED,(cardId: CardId, callback: (response: CardPlayedResponseDTO | BaseResponseDTO) => void) => {
             try
             {
@@ -124,6 +123,9 @@ export class FriendCardGameHandler extends SocketHandler
             {
                 callback({ success: false, error: error?.message } as BaseResponseDTO);
             }
+        });
+        socket.on(SOCKET_GAME_EVENTS.GET_GAME_STATE, (callback: (friendCardGameStateForPlayer: FriendCardGameStateForPlayerDTO) => void) => {
+            callback(FriendCardGameStateForPlayerDTO.CreateFromFriendCardGameAndPlayer(gameRoom, player));
         });
     }
 }
